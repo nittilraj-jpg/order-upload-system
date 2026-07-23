@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .login-box {
+            background: #fff;
+            border-radius: 15px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .login-box h1 { font-size: 28px; color: #333; margin-bottom: 10px; text-align: center; }
+        .login-box p { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 13px; }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        
+        .password-wrapper {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        
+        .msg {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .msg-error { background: #ffe0e0; color: #d32f2f; border-left: 4px solid #d32f2f; }
+        .msg-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+
+        .app { display: none; }
+        .app.active { display: block; }
+        
+        .app-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .top-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .top-bar h1 { font-size: 24px; }
+        .top-bar p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #fff;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .nav-tab.active { background: #667eea; color: #fff; }
+        .nav-tab:hover { background: #f0f2f5; }
+        .nav-tab.active:hover { background: #667eea; }
+
+        .tab-content { display: none !important; }
+        .tab-content.active { display: block !important; }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 20px; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            width: 100%;
+            padding: 12px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+        .btn-secondary { background: #f0f2f5; color: #333; }
+        .btn-secondary:hover { background: #e4e6eb; }
+        .btn-danger { background: #ffebee; color: #d32f2f; }
+        .btn-danger:hover { background: #ffcdd2; }
+        .btn-edit { background: #e3f2fd; color: #1976d2; padding: 6px 12px; font-size: 12px; }
+        .btn-delete { background: #ffebee; color: #d32f2f; padding: 6px 12px; font-size: 12px; }
+        .btn-view { background: #e8f5e9; color: #2e7d32; padding: 6px 12px; font-size: 12px; }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: #667eea; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+        .user-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .user-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .user-card-name { font-weight: 700; color: #333; margin-bottom: 8px; font-size: 14px; }
+        .user-card-info { font-size: 12px; color: #666; margin-bottom: 3px; }
+        .user-card-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+        }
+        .table tr:hover { background: #f9f9f9; }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { font-size: 12px; opacity: 0.9; }
+
+        .select-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .select-field:focus { outline: none; border-color: #667eea; }
+
+        .column-list {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .column-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: #fff;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .column-item-name { font-weight: 600; color: #333; font-size: 13px; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 15px; }
+    </style>
+<meta name="build" content="2026-07-23T07:13:06.728240">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-wrapper">
+        <div class="login-box">
+            <h1>👨‍💼 Admin Dashboard</h1>
+            <p>Manage team & orders</p>
+            <div id="login-msg"></div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-username" class="form-input" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter password">
+                        <span class="password-toggle" onclick="toggleLoginPassword()">👁️</span>
+                    </div>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+                
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="app">
+        <div class="app-container">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div>
+                    <h1>👨‍💼 Admin Dashboard</h1>
+                    <p>Manage team, columns, deadlines & orders</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab(event, 'dashboard')">📊 Dashboard</button>
+                <button class="nav-tab" onclick="switchTab(event, 'submissions')">📈 Data</button>
+                <button class="nav-tab" onclick="switchTab(event, 'settings')">🔧 Settings</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active" style="display: block;">
+                <div class="card" style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⏳</div>
+                    <div style="font-size: 24px; font-weight: 600; color: #333; margin-bottom: 10px;">Dashboard View</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 30px;">Under Process</div>
+                    <div style="background: #f0f9f7; padding: 15px; border-radius: 6px; border-left: 4px solid #14b8a6;">
+                        <p style="font-size: 12px; color: #666; margin: 0;">This section is currently under development. We will design and implement the dashboard as per your specific requirements.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-submissions" class="tab-content" style="display: none;">
+                <!-- Submission Type Selection -->
+                <div style="display: flex; gap: 8px; margin-bottom: 20px; align-items: center;">
+                    <button id="submissions-pickup-btn" class="submissions-type-btn active" onclick="switchSubmissionType(event, 'pickup')" 
+                        style="padding: 8px 16px; background: #14b8a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                        📦 Pickup
+                    </button>
+                    <button id="submissions-delivery-btn" class="submissions-type-btn" onclick="switchSubmissionType(event, 'delivery')" 
+                        style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                        🚚 Delivery
+                    </button>
+                </div>
+
+                <!-- Pickup Submissions Card -->
+                <div id="submissions-pickup-card">
+                    <div class="card">
+                        <div class="card-title">📊 Pickup Submissions Statistics</div>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-pickup-total">0</div>
+                                <div class="stat-label">Total Submissions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-pickup-records">0</div>
+                                <div class="stat-label">Total Records</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-pickup-users">0</div>
+                                <div class="stat-label">Team Members</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📋 Pickup Submissions</div>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="submissionSearchPickup" placeholder="🔍 Search by username, date, or status..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" onkeyup="filterSubmissions('pickup')">
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"><input type="checkbox" id="select-all-pickup" onchange="toggleSelectAll(this, 'pickup')" style="cursor: pointer; width: 18px; height: 18px;"></th>
+                                        <th>Username</th>
+                                        <th>Records</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="submissions-table-pickup">
+                                    <tr><td colspan="6" style="text-align: center; color: #999; padding: 20px;">No submissions yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Submissions Card -->
+                <div id="submissions-delivery-card" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">📊 Delivery Submissions Statistics</div>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-delivery-total">0</div>
+                                <div class="stat-label">Total Submissions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-delivery-records">0</div>
+                                <div class="stat-label">Total Records</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="stat-delivery-users">0</div>
+                                <div class="stat-label">Team Members</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📋 Delivery Submissions</div>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="submissionSearchDelivery" placeholder="🔍 Search by username, date, or status..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" onkeyup="filterSubmissions('delivery')">
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"><input type="checkbox" id="select-all-delivery" onchange="toggleSelectAll(this, 'delivery')" style="cursor: pointer; width: 18px; height: 18px;"></th>
+                                        <th>Username</th>
+                                        <th>Records</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="submissions-table-delivery">
+                                    <tr><td colspan="6" style="text-align: center; color: #999; padding: 20px;">No submissions yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content" style="display: none;">
+                <!-- Settings Sub-tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 0;">
+                    <button id="settings-users-btn" class="settings-subtab" onclick="switchSettingsTab(event, 'users')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid transparent; color: #999; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        👥 Users
+                    </button>
+                    <button id="settings-manage-btn" class="settings-subtab" onclick="switchSettingsTab(event, 'manage')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid transparent; color: #999; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        ⚙️ Manage
+                    </button>
+                    <button id="settings-config-btn" class="settings-subtab active" onclick="switchSettingsTab(event, 'config')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid #14b8a6; color: #14b8a6; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        🔗 Configuration
+                    </button>
+                </div>
+
+                <!-- Users Section -->
+                <div id="settings-users-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">👥 Active Team Members</div>
+                        <div id="users-list" class="user-list">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">👥</div>
+                                <p>No users added yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Manage Sub-tab (moved into Settings, next to Users) -->
+            <div id="settings-manage-section" style="display: none;">
+                <!-- Manage Sub-tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 0;">
+                    <button id="manage-columns-btn" class="manage-subtab active" onclick="switchManageTab(event, 'columns')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid #14b8a6; color: #14b8a6; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        📋 Columns
+                    </button>
+                    <button id="manage-deadline-btn" class="manage-subtab" onclick="switchManageTab(event, 'deadline')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid transparent; color: #999; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        📅 Deadline
+                    </button>
+                    <button id="manage-exceptions-btn" class="manage-subtab" onclick="switchManageTab(event, 'exceptions')" 
+                        style="padding: 12px 20px; background: none; border: none; border-bottom: 3px solid transparent; color: #999; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        ⚠️ Exceptions
+                    </button>
+                </div>
+
+                <!-- Columns Section -->
+                <div id="manage-columns-section">
+                    <div class="card">
+                        <div class="card-title">📋 Manage Order Columns</div>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Add or remove columns. Mark as Mandatory (✓) or Optional (✗) for validation.</p>
+                        
+                        <!-- Column Type Selection -->
+                        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                            <button id="columns-pickup-btn" class="columns-type-btn active" onclick="switchColumnType(event, 'pickup')" 
+                                style="padding: 8px 16px; background: #14b8a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                📦 Pickup
+                            </button>
+                            <button id="columns-delivery-btn" class="columns-type-btn" onclick="switchColumnType(event, 'delivery')" 
+                                style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                🚚 Delivery
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Add New Column</label>
+                            <div style="display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; align-items: flex-end;">
+                                <input type="text" id="newColumnName" class="form-input" placeholder="Enter column name (e.g., Invoice ID)">
+                                <label class="form-label" style="margin-bottom: 0;">
+                                    <input type="checkbox" id="newColumnMandatory" checked> Mandatory
+                                </label>
+                                <button type="button" class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="addColumn()">Add</button>
+                                <button type="button" class="btn btn-secondary" style="width: auto; padding: 10px 20px; background: #14b8a6; color: white;" onclick="document.getElementById('templateUploadInput').click()">📤 Upload Template</button>
+                                <input type="file" id="templateUploadInput" accept=".csv" style="display: none;" onchange="handleTemplateUpload(event)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Existing Columns</label>
+                            <p style="font-size: 11px; color: #999; margin-bottom: 10px;">Toggle between Mandatory (required) and Optional (optional) • Click Remove to delete</p>
+                            <div class="column-list" id="column-list"></div>
+                        </div>
+                        <div id="column-msg"></div>
+                    </div>
+                </div>
+
+                <!-- Deadline Section -->
+                <div id="manage-deadline-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title" id="deadline-card-title">📅 Set Submission Deadline</div>
+                        <p style="font-size: 12px; color: #666; margin-bottom: 15px;" id="deadline-default-info">⚠️ Default cutoff is 3:00 PM daily. Extend by 1 day if needed.</p>
+                        
+                        <!-- Deadline Type Selection -->
+                        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                            <button id="deadline-pickup-btn" class="deadline-type-btn active" onclick="switchDeadlineType(event, 'pickup')" 
+                                style="padding: 8px 16px; background: #14b8a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                📦 Pickup
+                            </button>
+                            <button id="deadline-delivery-btn" class="deadline-type-btn" onclick="switchDeadlineType(event, 'delivery')" 
+                                style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                🚚 Delivery
+                            </button>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Deadline Date & Time</label>
+                                <input type="datetime-local" id="deadline" class="form-input">
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+                                <button type="button" class="btn btn-secondary" style="flex: 1; padding: 10px;" onclick="quickDeadline(1)">+1 Day (today only)</button>
+                                <button type="button" style="flex: 1; padding: 10px; background: #0f766e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px;" onclick="saveAsDefaultCutoff()">💾 Save as Default</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="updateDeadline()">Update Deadline</button>
+                        <p style="font-size: 11px; color: #999; margin-top: 8px;">"Update Deadline" applies the date/time above just for that specific day. "Save as Default" instead takes the <strong>time</strong> from the box above and makes it the new standing daily cutoff (used automatically every day going forward, until you change it again).</p>
+                        <div id="deadline-msg" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+
+                <!-- Exceptions Section -->
+                <div id="manage-exceptions-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">⚠️ Grant Exception</div>
+                        
+                        <!-- Exception Type Selection -->
+                        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                            <button id="exceptions-pickup-btn" class="exceptions-type-btn active" onclick="switchExceptionType(event, 'pickup')" 
+                                style="padding: 8px 16px; background: #14b8a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                📦 Pickup
+                            </button>
+                            <button id="exceptions-delivery-btn" class="exceptions-type-btn" onclick="switchExceptionType(event, 'delivery')" 
+                                style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                                🚚 Delivery
+                            </button>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Team Member</label>
+                                <select id="exceptionUser" class="select-field">
+                                    <option value="">— Select user —</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Extra Hours</label>
+                                <input type="number" id="exceptionHours" class="form-input" placeholder="24" value="24">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reason</label>
+                                <input type="text" id="exceptionReason" class="form-input" placeholder="Enter reason">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="grantException()">Grant Exception</button>
+                        <div id="exception-msg" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Configuration Section -->
+                <div id="settings-config-section">
+                    <div class="card">
+                        <div class="card-title">⚙️ Configuration</div>
+                        
+                        <!-- Configuration List -->
+                        <div style="display: flex; flex-direction: column; gap: 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
+                            
+                            <!-- Google Sheet Configuration Item -->
+                            <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; background: white; transition: background 0.2s;" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'" onclick="openGoogleSheetModal()">
+                                <div style="flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">
+                                    1
+                                </div>
+                                <div style="flex: 1; margin-left: 15px;">
+                                    <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px;">🔗 Google Sheet Configuration</div>
+                                    <div style="font-size: 11px; color: #999;">Configure Pickup & Delivery sheet IDs</div>
+                                </div>
+                                <div id="gs-config-badge" style="background: #f0f0f0; color: #666; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap;">Not Set</div>
+                            </div>
+
+                            <!-- Pickup Configuration Item -->
+                            <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; background: white; transition: background 0.2s;" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='white'" onclick="togglePickupConfigSection()">
+                                <div style="flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">
+                                    2
+                                </div>
+                                <div style="flex: 1; margin-left: 15px;">
+                                    <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px;">📦 Pickup Configuration</div>
+                                    <div style="font-size: 11px; color: #999;">Upload 3PL partner mapping data</div>
+                                </div>
+                                <div id="pickup-config-badge" style="background: #f0f0f0; color: #666; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap;">Not Loaded</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Pickup Configuration Card (Hidden by default) -->
+                    <div id="pickup-config-card" style="display: none; margin-top: 20px;">
+                        <div class="card" style="border-top: 3px solid #14b8a6;">
+                            <div class="card-title" style="color: #14b8a6;">📦 Pickup Configuration</div>
+                            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Upload 3PL Partner mapping data.</p>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Upload Configuration CSV</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button type="button" onclick="document.getElementById('pickupConfigInput').click()" 
+                                        style="flex: 1; background: #14b8a6; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                                        📤 Choose File & Upload
+                                    </button>
+                                    <input type="file" id="pickupConfigInput" accept=".csv" style="display: none;" onchange="handlePickupConfigUpload(event)">
+                                    <button type="button" onclick="downloadPickupConfig()" 
+                                        style="flex-shrink: 0; background: #0f766e; color: white; padding: 12px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                                        ⬇️ Download CSV
+                                    </button>
+                                </div>
+                                <p style="font-size: 11px; color: #999; margin-top: 8px;">✅ CSV Format: key, partner (with headers)<br>❌ Excel files (.xlsx) - Save as CSV first</p>
+                            </div>
+
+                            <div id="pickup-config-msg"></div>
+                            
+                            <div style="margin-top: 15px; max-height: 300px; overflow-y: auto; background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                                <div style="font-size: 12px; font-weight: 600; margin-bottom: 10px;">📋 Loaded Configurations:</div>
+                                <div id="pickup-config-list">
+                                    <p style="color: #999; text-align: center; padding: 15px; font-size: 12px;">No configuration loaded yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📋 Submission Details</span>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASS = 'admin123';
+        const STORAGE_KEY = 'flipkart_order_system';
+        const DEFAULT_FIELDS = ['Pickup Zone','Seller Name','Pickup address','City','Pin code','PO','Qty','No of boxes','Weight','Delivery FC Location','Contact person','Phone Number','Pickup date','Category'];
+        const DEFAULT_DELIVERY_FIELDS = ['FC','Suppliers name','PO No.','Planned Qty','Received Qty','Boxes','Docket','3PL','Slot Date','Segment'];
+
+        // Pre-loaded employee credentials + one shared/common reference login (raj).
+        // This list only takes effect the very first time the app runs (empty
+        // localStorage AND an empty shared server store) - see syncFromServer()
+        // below. Once real data exists on the server, that always wins, so admins
+        // can freely edit/remove/add users afterward from the Users tab.
+                const SEED_USERS = [
+    { id: 528310305, userType: 'Employee', employeeName: 'Grocery', username: 'grocery', password: 'pl@grocery', isActive: true, createdAt: new Date().toLocaleString() },
+    { id: 342016971, userType: 'Employee', employeeName: 'SHA', username: 'sha', password: 'pl@sha', isActive: true, createdAt: new Date().toLocaleString() },
+    { id: 913874876, userType: 'Employee', employeeName: 'Home', username: 'home', password: 'pl@home', isActive: true, createdAt: new Date().toLocaleString() },
+    { id: 97456674, userType: 'Employee', employeeName: 'Gourmet', username: 'gourmet', password: 'pl@gourmet', isActive: true, createdAt: new Date().toLocaleString() },
+    { id: 984661883, userType: 'Employee', employeeName: 'Raj (Common)', username: 'raj', password: '224466', isActive: true, createdAt: new Date().toLocaleString() }
+        ];
+
+        let currentAdmin = null;
+        let currentExceptionType = 'pickup';
+        let currentDeadlineType = 'pickup';
+        let currentColumnType = 'pickup';
+        let systemData = {
+            users: SEED_USERS.map(u => ({...u})),
+            deadline: getDefaultDeadline(),
+            submissions: [],
+            exceptions: {},
+            columns: [...DEFAULT_FIELDS]
+        };
+
+        function getDefaultDeadline() {
+            const today = new Date();
+            today.setHours(15, 0, 0, 0); // 3 PM - matches the standing daily default everywhere else
+            if (today < new Date()) {
+                today.setDate(today.getDate() + 1);
+            }
+            return today.toISOString();
+        }
+
+        function toggleLoginPassword() {
+            const field = document.getElementById('login-password');
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                let needsSave = false;
+
+                if (stored) {
+                    systemData = JSON.parse(stored);
+                    
+                    // CRITICAL FIX: Ensure all default columns exist and migrate old format
+                    if (!systemData.columns) {
+                        systemData.columns = DEFAULT_FIELDS.map(name => ({ name, mandatory: true }));
+                        needsSave = true;
+                    } else if (systemData.columns.some(col => typeof col === 'string')) {
+                        // Convert old string format to new object format
+                        systemData.columns = systemData.columns.map(col =>
+                            typeof col === 'string' ? { name: col, mandatory: true } : col
+                        );
+                        needsSave = true;
+
+                        // NOTE: Do NOT force re-add every DEFAULT_FIELDS entry here.
+                        // Previously this always rebuilt systemData.columns from
+                        // DEFAULT_FIELDS + customColumns, which meant a deleted
+                        // default column (e.g. "Pickup Zone") got resurrected the
+                        // next time loadData() ran (e.g. right after removeColumn()
+                        // called saveData() then renderColumns() called loadData()
+                        // again). Just keep whatever is already stored as-is.
+                    }
+
+                    // Initialize delivery columns if they don't exist
+                    if (!systemData.deliveryColumns) {
+                        systemData.deliveryColumns = DEFAULT_DELIVERY_FIELDS.map(name => ({ name, mandatory: true }));
+                        needsSave = true;
+                    } else if (systemData.deliveryColumns.some(col => typeof col === 'string')) {
+                        // Convert old string format to new object format for delivery columns
+                        systemData.deliveryColumns = systemData.deliveryColumns.map(col =>
+                            typeof col === 'string' ? { name: col, mandatory: true } : col
+                        );
+                        needsSave = true;
+                    }
+
+                    // Only write back to localStorage if a migration actually changed
+                    // something. Previously this ran on EVERY loadData() call (i.e.
+                    // almost every click in the panel), which meant re-serializing
+                    // and re-writing the ENTIRE dataset - including every historical
+                    // submission's full row data - on every click. As submissions
+                    // accumulated over time, that made every button feel slower and
+                    // slower. Skipping the redundant write fixes that.
+                    if (needsSave) saveData();
+                } else {
+                    systemData.columns = DEFAULT_FIELDS.map(name => ({ name, mandatory: true }));
+                    systemData.deliveryColumns = DEFAULT_DELIVERY_FIELDS.map(name => ({ name, mandatory: true }));
+                    saveData(); // first-time init only
+                }
+            } catch(e) {
+                systemData.columns = DEFAULT_FIELDS.map(name => ({ name, mandatory: true }));
+                systemData.deliveryColumns = DEFAULT_DELIVERY_FIELDS.map(name => ({ name, mandatory: true }));
+            }
+        }
+
+
+
+        // ---- Shared-backend sync (Netlify Function + Netlify Blobs) ----
+        // Without this, each browser/device only ever sees its OWN localStorage,
+        // so a user created here on the admin's device doesn't exist on anyone
+        // else's device -> "Invalid username or password" for everyone else.
+        // ⬇️ Paste your Apps Script Web App URL here after deploying Code.gs
+
+        const SUPABASE_URL = 'https://yhubqbubjgkycikiweav.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodWJxYnViamdreWNpa2l3ZWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Nzk5ODMsImV4cCI6MjEwMDM1NTk4M30.OrL_kRTk5gz3QwbyM4mtspz4ej7hZAucK8-zFAn2pWc';
+        const API = SUPABASE_URL + '/rest/v1/systemdata';
+        const HEADERS = {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Prefer': 'return=representation'
+        };
+
+        let _pushPending = false;
+
+        async function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+            _pushPending = true;
+            await pushToServer();
+            _pushPending = false;
+        }
+
+        async function pushToServer() {
+            try {
+                const stripped = {
+                    ...systemData,
+                    submissions: (systemData.submissions || []).map((s, i, arr) => {
+                        return i === arr.length - 1 ? s : { ...s, rows: [] };
+                    })
+                };
+
+                // Try update first, then insert if not exists
+                const checkRes = await fetch(API + '?id=eq.1', { headers: HEADERS });
+                const existing = await checkRes.json();
+
+                if (existing && existing.length > 0) {
+                    await fetch(API + '?id=eq.1', {
+                        method: 'PATCH',
+                        headers: HEADERS,
+                        body: JSON.stringify({ data: stripped })
+                    });
+                } else {
+                    await fetch(API, {
+                        method: 'POST',
+                        headers: HEADERS,
+                        body: JSON.stringify({ id: 1, data: stripped })
+                    });
+                }
+                return true;
+            } catch (e) {
+                console.warn('Could not sync to server:', e.message);
+                return false;
+            }
+        }
+
+        async function syncFromServer() {
+            if (_pushPending) return;
+            try {
+                const res = await fetch(API + '?id=eq.1', { headers: HEADERS });
+                if (!res.ok) return;
+                const rows = await res.json();
+                if (!rows || !rows.length || !rows[0].data) return;
+                const serverData = rows[0].data;
+
+                loadData();
+                if (serverData && (serverData.users || []).length) {
+                    const serverTs = new Set((serverData.submissions || []).map(s => s.timestamp));
+                    const localOnly = (systemData.submissions || []).filter(s => !serverTs.has(s.timestamp));
+                    systemData = serverData;
+                    if (localOnly.length) {
+                        systemData.submissions = [...(systemData.submissions || []), ...localOnly];
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                        await pushToServer();
+                        return;
+                    }
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                } else {
+                    // Server is empty - bootstrap it with the seed list MERGED
+                    // with whatever's already in local storage on this device
+                    // (e.g. a test account created before this deploy), so a
+                    // pre-existing local user can never silently wipe out the
+                    // seed list, and vice versa.
+                    systemData.users = mergeWithSeed(systemData.users);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                    await pushToServer();
+                }
+            } catch
+
+        async function login(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const msg = document.getElementById('login-msg');
+
+            await syncFromServer();
+            loadData();
+
+            // Check if it's the main admin account
+            if (username === ADMIN_USER && password === ADMIN_PASS) {
+                currentAdmin = username;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('active');
+                
+                // Ensure columns exist
+                if (!systemData.columns || systemData.columns.length === 0) {
+                    systemData.columns = DEFAULT_FIELDS.map(name => ({ name, mandatory: true }));
+                    saveData();
+                }
+                
+                loadDeadline();
+                renderUsers();
+                renderColumns();
+                updateStats();
+                return;
+            }
+
+            // Check if user is an Admin type from users list
+            const user = systemData.users && systemData.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password && u.userType === 'Admin');
+            
+            if (user) {
+                currentAdmin = username;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').classList.add('active');
+                
+                if (!systemData.columns || systemData.columns.length === 0) {
+                    systemData.columns = DEFAULT_FIELDS.map(name => ({ name, mandatory: true }));
+                    saveData();
+                }
+                
+                loadDeadline();
+                renderUsers();
+                renderColumns();
+                updateStats();
+                return;
+            }
+
+            msg.innerHTML = '<div class="msg msg-error">❌ Invalid credentials or not an admin</div>';
+        }
+
+        function logout() {
+            currentAdmin = null;
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('main-app').classList.remove('active');
+        }
+
+        function switchTab(event, tab) {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.remove('active');
+                t.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('tab-' + tab).style.display = 'block';
+            event.target.classList.add('active');
+
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'submissions') updateStats();
+            if (tab === 'settings') {
+                updateWebhookStatus();
+                updateConfigurationBadges();
+                renderUsers();
+            }
+        }
+
+        function switchSettingsTab(event, section) {
+            // Update button styles
+            document.getElementById('settings-users-btn').style.borderBottom = section === 'users' ? '3px solid #14b8a6' : '3px solid transparent';
+            document.getElementById('settings-users-btn').style.color = section === 'users' ? '#14b8a6' : '#999';
+
+            document.getElementById('settings-manage-btn').style.borderBottom = section === 'manage' ? '3px solid #14b8a6' : '3px solid transparent';
+            document.getElementById('settings-manage-btn').style.color = section === 'manage' ? '#14b8a6' : '#999';
+            
+            document.getElementById('settings-config-btn').style.borderBottom = section === 'config' ? '3px solid #14b8a6' : '3px solid transparent';
+            document.getElementById('settings-config-btn').style.color = section === 'config' ? '#14b8a6' : '#999';
+
+            // Show/hide sections
+            document.getElementById('settings-users-section').style.display = section === 'users' ? 'block' : 'none';
+            document.getElementById('settings-manage-section').style.display = section === 'manage' ? 'block' : 'none';
+            document.getElementById('settings-config-section').style.display = section === 'config' ? 'block' : 'none';
+            document.getElementById('pickup-config-card').style.display = 'none'; // Hide pickup config when switching tabs
+            document.getElementById('pickup-mailer-card').style.display = 'none';
+            
+            if (section === 'users') {
+                renderUsers();
+            }
+            if (section === 'manage') {
+                renderColumns();
+                loadDeadline();
+            }
+        }
+
+        function togglePickupConfigSection() {
+            const card = document.getElementById('pickup-config-card');
+            const isOpening = card.style.display === 'none';
+
+            // Accordion behavior: close the other card first
+            document.getElementById('pickup-mailer-card').style.display = 'none';
+
+            card.style.display = isOpening ? 'block' : 'none';
+            if (isOpening) {
+                loadPickupConfig();
+            }
+        }
+
+        // ===== Pickup Mailer =====
+
+        function togglePickupMailerSection() {
+            const card = document.getElementById('pickup-mailer-card');
+            const isOpening = card.style.display === 'none';
+
+            // Accordion behavior: close the other card first
+            document.getElementById('pickup-config-card').style.display = 'none';
+
+            card.style.display = isOpening ? 'block' : 'none';
+        }
+
+        function openPickupSheet() {
+            loadData();
+            const sheetId = systemData.googleSheetIdPickup;
+            if (!sheetId) {
+                alert('❌ Pickup Google Sheet ID isn\'t configured yet (Configuration → Google Sheet Configuration).');
+                return;
+            }
+            window.open('https://docs.google.com/spreadsheets/d/' + sheetId + '/edit', '_blank');
+        }
+
+        function handlePickupConfigUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file type
+            if (!file.name.endsWith('.csv')) {
+                document.getElementById('pickup-config-msg').innerHTML = '<div class="msg msg-error">❌ Only CSV files are supported.\n\n📝 Please:\n1. Open your Excel file\n2. Save As → CSV format\n3. Try uploading again</div>';
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let config = [];
+                    const csv = e.target.result;
+                    const lines = csv.trim().split('\n');
+                    
+                    if (lines.length > 0) {
+                        // Skip header row if present
+                        const startIdx = lines[0].toLowerCase().includes('key') || lines[0].toLowerCase().includes('partner') ? 1 : 0;
+                        
+                        for (let i = startIdx; i < lines.length; i++) {
+                            const parts = lines[i].split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+                            if (parts.length >= 2 && parts[0] && parts[1]) {
+                                config.push({
+                                    key: parts[0],      // Column 1: Key/Pattern to match against concat
+                                    partner: parts[1]   // Column 2: Partner to return in 3P
+                                });
+                            }
+                        }
+                    }
+
+                    if (config.length === 0) {
+                        document.getElementById('pickup-config-msg').innerHTML = '<div class="msg msg-error">❌ No valid configuration data found in CSV</div>';
+                        return;
+                    }
+
+                    // Save configuration
+                    loadData();
+                    systemData.pickupConfiguration = config;
+                    saveData();
+                    loadPickupConfig();
+
+                    // Update badge
+                    updateConfigurationBadges();
+
+                    document.getElementById('pickup-config-msg').innerHTML = '<div class="msg msg-success">✅ Configuration uploaded! ' + config.length + ' partner mappings loaded.</div>';
+                    setTimeout(() => document.getElementById('pickup-config-msg').innerHTML = '', 3000);
+                } catch (error) {
+                    document.getElementById('pickup-config-msg').innerHTML = '<div class="msg msg-error">❌ Error reading file: ' + error.message + '</div>';
+                }
+            };
+
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function updateConfigurationBadges() {
+            loadData();
+            
+            // Update Google Sheet badge
+            const pickupSheetId = systemData.googleSheetIdPickup;
+            const deliverySheetId = systemData.googleSheetIdDelivery;
+            const gsBadge = document.getElementById('gs-config-badge');
+            
+            if (pickupSheetId || deliverySheetId) {
+                gsBadge.innerHTML = '✅ Configured';
+                gsBadge.style.background = '#c8e6c9';
+                gsBadge.style.color = '#2e7d32';
+            } else {
+                gsBadge.innerHTML = 'Not Set';
+                gsBadge.style.background = '#f0f0f0';
+                gsBadge.style.color = '#666';
+            }
+
+            // Update Pickup Config badge
+            const pickupConfig = systemData.pickupConfiguration || [];
+            const pickupBadge = document.getElementById('pickup-config-badge');
+            
+            if (pickupConfig.length > 0) {
+                pickupBadge.innerHTML = '✅ ' + pickupConfig.length + ' loaded';
+                pickupBadge.style.background = '#c8e6c9';
+                pickupBadge.style.color = '#2e7d32';
+            } else {
+                pickupBadge.innerHTML = 'Not Loaded';
+                pickupBadge.style.background = '#f0f0f0';
+                pickupBadge.style.color = '#666';
+            }
+
+            // Pickup Mailer badge - actual setup lives in the Sheet's own menu now,
+            // this panel has no way to know that state, so just point there.
+            const mailerBadge = document.getElementById('pickup-mailer-badge');
+            if (mailerBadge) {
+                mailerBadge.textContent = 'Set up in Sheet';
+                mailerBadge.style.background = '#e0f2fe';
+                mailerBadge.style.color = '#0369a1';
+            }
+        }
+
+        function loadPickupConfig() {
+            loadData();
+            const config = systemData.pickupConfiguration || [];
+            const container = document.getElementById('pickup-config-list');
+
+            if (config.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px; font-size: 12px;">No configuration loaded yet</p>';
+                return;
+            }
+
+            container.innerHTML = config.map((item, idx) => `
+                <div style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; gap: 10px;">
+                    <div style="flex-shrink: 0; width: 24px; height: 24px; background: #14b8a6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">
+                        ${idx + 1}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-family: monospace; font-size: 12px; color: #333; word-break: break-all; margin-bottom: 4px; font-weight: 600;">${item.key}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="font-size: 13px; color: #666;">→ ${item.partner}</strong>
+                            <span style="background: #14b8a6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">Active</span>
+                        </div>
+                    </div>
+                    <button onclick="deletePickupConfig(${idx})" style="flex-shrink: 0; background: #d32f2f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function downloadPickupConfig() {
+            loadData();
+            const config = systemData.pickupConfiguration || [];
+
+            if (config.length === 0) {
+                alert('❌ No configuration loaded yet - nothing to download.');
+                return;
+            }
+
+            // Escape values that contain commas, quotes, or newlines per CSV rules
+            const escapeCsv = (val) => {
+                const s = String(val ?? '');
+                if (/[",\n]/.test(s)) {
+                    return '"' + s.replace(/"/g, '""') + '"';
+                }
+                return s;
+            };
+
+            const lines = ['key,partner'];
+            config.forEach(item => {
+                lines.push(escapeCsv(item.key) + ',' + escapeCsv(item.partner));
+            });
+
+            const csvContent = lines.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pickup_configuration_' + new Date().toISOString().slice(0, 10) + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleSelectAll(selectAllCheckbox, type) {
+            const folderCheckboxes = document.querySelectorAll('.folder-checkbox');
+            folderCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateDeleteButton(type);
+        }
+
+        function updateDeleteButton(type) {
+            const folderCheckboxes = document.querySelectorAll('.folder-checkbox');
+            const deleteBtn = document.getElementById('delete-selected-btn');
+            const selectAllCheckbox = document.getElementById(`select-all-${type}`);
+            
+            const isAnyChecked = Array.from(folderCheckboxes).some(cb => cb.checked);
+            const allChecked = folderCheckboxes.length > 0 && Array.from(folderCheckboxes).every(cb => cb.checked);
+            
+            // Show delete button if any folder is checked
+            if (deleteBtn) {
+                deleteBtn.style.display = isAnyChecked ? 'block' : 'none';
+            }
+            
+            // Update Select All checkbox state
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = allChecked && folderCheckboxes.length > 0;
+                selectAllCheckbox.indeterminate = isAnyChecked && !allChecked;
+            }
+        }
+
+        function deleteSelectedFolders(type) {
+            loadData();
+            const checkboxes = document.querySelectorAll('.folder-checkbox:checked');
+            const selectedDates = Array.from(checkboxes).map(cb => cb.getAttribute('data-date').replace(/-/g, '/'));
+            
+            if (selectedDates.length === 0) {
+                alert('❌ No folders selected');
+                return;
+            }
+
+            const count = selectedDates.length;
+            if (confirm(`❌ Delete selected folders?\n\n📂 Folders to delete: ${count}\n\nThis will permanently delete all submissions from the order upload system.\n\n[Cancel] or [OK]?`)) {
+                const allSubs = systemData.submissions || [];
+                let removedCount = 0;
+
+                selectedDates.forEach(date => {
+                    const before = allSubs.length;
+                    const after = allSubs.filter(s => {
+                        const subDate = new Date(s.timestamp).toLocaleDateString();
+                        return subDate !== date;
+                    });
+                    removedCount += (before - after.length);
+                });
+
+                // Remove all selected folders
+                systemData.submissions = allSubs.filter(s => {
+                    const subDate = new Date(s.timestamp).toLocaleDateString();
+                    return !selectedDates.includes(subDate);
+                });
+
+                saveData();
+                alert(`✅ Folders deleted!\n\n📂 Deleted: ${count} folders\n🗑️ Removed: ${removedCount} submissions`);
+                renderSubmissions(type);
+            }
+        }
+
+        function toggleDeleteButton(safeDate) {
+            loadData();
+            const allSubs = systemData.submissions || [];
+            const folderSubmissions = allSubs.filter(s => {
+                const subDate = new Date(s.timestamp).toLocaleDateString();
+                return subDate === date;
+            });
+
+            if (folderSubmissions.length === 0) {
+                alert('❌ No submissions found in this folder');
+                return;
+            }
+
+            const count = folderSubmissions.length;
+            if (confirm(`❌ Delete entire folder?\n\n📅 Date: ${date}\n📊 Submissions: ${count}\n\nThis will permanently delete all submissions from the order upload system.\n\n[Cancel] or [OK]?`)) {
+                // Remove all submissions with this date from systemData
+                systemData.submissions = allSubs.filter(s => {
+                    const subDate = new Date(s.timestamp).toLocaleDateString();
+                    return subDate !== date;
+                });
+
+                saveData();
+                alert(`✅ Folder deleted!\n\n📅 Date: ${date}\n🗑️ Removed: ${count} submissions`);
+                renderSubmissions('pickup');
+            }
+        }
+
+        function deletePickupConfig(idx) {
+            if (confirm('❌ Delete this configuration entry?\n\nKey: ' + systemData.pickupConfiguration[idx].key + '\nPartner: ' + systemData.pickupConfiguration[idx].partner)) {
+                loadData();
+                systemData.pickupConfiguration.splice(idx, 1);
+                saveData();
+                loadPickupConfig();
+                updateConfigurationBadges();
+                
+                if (systemData.pickupConfiguration.length === 0) {
+                    alert('✅ Configuration deleted!\n\nNo configurations remaining.');
+                } else {
+                    alert('✅ Configuration deleted!\n\n' + systemData.pickupConfiguration.length + ' configurations remaining.');
+                }
+            }
+        }
+
+        window.onload = async function() {
+            await syncFromServer();
+            loadData();
+            updateWebhookStatus();
+            updateConfigurationBadges();
+            loadDashboard();
+            setInterval(async () => {
+                await syncFromServer();
+                if (currentAdmin) { renderUsers(); loadDashboard(); loadDeadline(); }
+            }, 30000); // pick up new signups/uploads/deadline changes made from other devices
+        };
+
+        function loadDashboard() {
+            loadData();
+            
+            // Get all submissions grouped by type
+            const pickupSubs = systemData.submissions?.filter(s => !s.type || s.type === 'pickup') || [];
+            const deliverySubs = systemData.submissions?.filter(s => s.type === 'delivery') || [];
+
+            // Calculate basic counts
+            const pickupRecords = pickupSubs.reduce((sum, s) => sum + (s.records || 0), 0);
+            const deliveryRecords = deliverySubs.reduce((sum, s) => sum + (s.records || 0), 0);
+            const pickupTotal = pickupSubs.length;
+            const deliveryTotal = deliverySubs.length;
+            const pickupAvg = pickupTotal > 0 ? Math.round(pickupRecords / pickupTotal) : 0;
+            const deliveryAvg = deliveryTotal > 0 ? Math.round(deliveryRecords / deliveryTotal) : 0;
+
+            // Update load overview - shows what was uploaded
+            document.getElementById('dashboard-pickup-load').textContent = pickupTotal;
+            document.getElementById('dashboard-delivery-load').textContent = deliveryTotal;
+            document.getElementById('dashboard-pickup-records').textContent = pickupRecords;
+            document.getElementById('dashboard-delivery-records').textContent = deliveryRecords;
+
+            // Update bucketing section with upload counts
+            document.getElementById('bucket-pickup-total').textContent = pickupTotal;
+            document.getElementById('bucket-pickup-records').textContent = pickupRecords;
+            document.getElementById('bucket-pickup-avg').textContent = pickupAvg;
+            document.getElementById('bucket-pickup-ontime').textContent = pickupTotal;
+            document.getElementById('bucket-pickup-late').textContent = '0';
+
+            document.getElementById('bucket-delivery-total').textContent = deliveryTotal;
+            document.getElementById('bucket-delivery-records').textContent = deliveryRecords;
+            document.getElementById('bucket-delivery-avg').textContent = deliveryAvg;
+            document.getElementById('bucket-delivery-ontime').textContent = deliveryTotal;
+            document.getElementById('bucket-delivery-late').textContent = '0';
+
+            // SLA will be based on data columns when you upload with SLA information
+            // For now, show all as uploaded (100% = data uploaded)
+            const pickupSLAPct = pickupTotal > 0 ? 100 : 0;
+            const deliverySLAPct = deliveryTotal > 0 ? 100 : 0;
+            const totalSLAPct = (pickupTotal + deliveryTotal > 0) ? 100 : 0;
+
+            // Update SLA performance bars
+            document.getElementById('sla-pickup-compliance').textContent = pickupSLAPct + '%';
+            document.getElementById('sla-pickup-bar').style.width = pickupSLAPct + '%';
+            document.getElementById('sla-pickup-text').textContent = `${pickupTotal} records uploaded`;
+
+            document.getElementById('sla-delivery-compliance').textContent = deliverySLAPct + '%';
+            document.getElementById('sla-delivery-bar').style.width = deliverySLAPct + '%';
+            document.getElementById('sla-delivery-text').textContent = `${deliveryTotal} records uploaded`;
+
+            // Update summary table
+            const totalSubs = pickupTotal + deliveryTotal;
+            const totalRecords = pickupRecords + deliveryRecords;
+            const totalAvg = totalSubs > 0 ? Math.round(totalRecords / totalSubs) : 0;
+
+            document.getElementById('summary-pickup-subs').textContent = pickupTotal;
+            document.getElementById('summary-delivery-subs').textContent = deliveryTotal;
+            document.getElementById('summary-total-subs').textContent = totalSubs;
+
+            document.getElementById('summary-pickup-recs').textContent = pickupRecords;
+            document.getElementById('summary-delivery-recs').textContent = deliveryRecords;
+            document.getElementById('summary-total-recs').textContent = totalRecords;
+
+            document.getElementById('summary-pickup-ontime').textContent = pickupTotal;
+            document.getElementById('summary-delivery-ontime').textContent = deliveryTotal;
+            document.getElementById('summary-total-ontime').textContent = totalSubs;
+
+            document.getElementById('summary-pickup-late').textContent = '0';
+            document.getElementById('summary-delivery-late').textContent = '0';
+            document.getElementById('summary-total-late').textContent = '0';
+
+            document.getElementById('summary-pickup-avg').textContent = pickupAvg;
+            document.getElementById('summary-delivery-avg').textContent = deliveryAvg;
+            document.getElementById('summary-total-avg').textContent = totalAvg;
+
+            document.getElementById('summary-pickup-sla').textContent = pickupSLAPct + '%';
+            document.getElementById('summary-delivery-sla').textContent = deliverySLAPct + '%';
+            document.getElementById('summary-total-sla').textContent = totalSLAPct + '%';
+
+            // Update last updated time
+            const now = new Date();
+            document.getElementById('dashboard-last-updated').textContent = now.toLocaleTimeString();
+        }
+
+        function addUser() {
+            const userType = document.getElementById('userType').value;
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const isActive = document.getElementById('isActive').checked;
+            const msg = document.getElementById('user-msg');
+
+            if (!employeeName || !username || !password) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Please fill all fields</div>';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Passwords do not match</div>';
+                return;
+            }
+
+            if (systemData.users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Username already exists</div>';
+                return;
+            }
+
+            loadData();
+            systemData.users.push({
+                id: Date.now(),
+                userType,
+                employeeName,
+                username,
+                password,
+                isActive,
+                createdAt: new Date().toLocaleString()
+            });
+
+            saveData();
+            renderUsers();
+            clearUserForm();
+            msg.innerHTML = '<div class="msg msg-success">✅ User added successfully!</div>';
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        function clearUserForm() {
+            document.getElementById('userType').value = 'Employee';
+            document.getElementById('employeeName').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('isActive').checked = true;
+            document.getElementById('user-msg').textContent = '';
+        }
+
+
+        function renderUsers() {
+            loadData();
+            const container = document.getElementById('users-list');
+            
+            if (systemData.users.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>No users added yet.</p></div>';
+                return;
+            }
+
+            container.innerHTML = systemData.users.map(u => `
+                <div class="user-card">
+                    <div class="user-card-name">${u.employeeName}</div>
+                    <div class="user-card-info">👤 Username: <strong>${u.username}</strong></div>
+                    <div class="user-card-info">📊 Type: ${u.userType}</div>
+                    <div class="user-card-info">${u.isActive ? '✅ Active' : '❌ Inactive'}</div>
+                    <div class="user-card-actions">
+                        <button class="btn btn-edit" onclick="togglePasswordEdit(${u.id})">🔑 Edit Password</button>
+                        <button class="btn btn-delete" onclick="deleteUser(${u.id})">Delete</button>
+                    </div>
+                    <div id="pwd-edit-${u.id}" style="display:none; margin-top:12px; background:#f0f4ff; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; font-weight:600; color:#667eea; margin-bottom:8px;">🔑 Change Password</div>
+                        <div style="position:relative; margin-bottom:8px;">
+                            <input type="password" id="pwd-new-${u.id}" class="form-input" placeholder="New password" style="padding-right:38px; font-size:13px; padding-top:9px; padding-bottom:9px;">
+                            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:16px;" onclick="toggleInlinePassword(${u.id})">👁️</span>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn" style="flex:1; background:#667eea; color:white; padding:8px; font-size:12px;" onclick="savePassword(${u.id})">💾 Save</button>
+                            <button class="btn btn-secondary" style="flex:1; padding:8px; font-size:12px;" onclick="togglePasswordEdit(${u.id})">Cancel</button>
+                        </div>
+                        <div id="pwd-msg-${u.id}" style="margin-top:6px; font-size:11px;"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function togglePasswordEdit(id) {
+            const panel = document.getElementById('pwd-edit-' + id);
+            const isVisible = panel.style.display !== 'none';
+            panel.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                document.getElementById('pwd-new-' + id).value = '';
+                document.getElementById('pwd-msg-' + id).textContent = '';
+                document.getElementById('pwd-new-' + id).focus();
+            }
+        }
+
+        function toggleInlinePassword(id) {
+            const f = document.getElementById('pwd-new-' + id);
+            f.type = f.type === 'password' ? 'text' : 'password';
+        }
+
+        function savePassword(id) {
+            const newPwd = document.getElementById('pwd-new-' + id).value.trim();
+            const msgEl = document.getElementById('pwd-msg-' + id);
+            if (!newPwd) {
+                msgEl.innerHTML = '<span style="color:#d32f2f;">⚠️ Password cannot be empty.</span>';
+                return;
+            }
+            if (newPwd.length < 4) {
+                msgEl.innerHTML = '<span style="color:#d32f2f;">⚠️ Minimum 4 characters.</span>';
+                return;
+            }
+            loadData();
+            const user = systemData.users.find(u => u.id === id);
+            if (!user) { msgEl.innerHTML = '<span style="color:#d32f2f;">User not found.</span>'; return; }
+            user.password = newPwd;
+            saveData();
+            msgEl.innerHTML = '<span style="color:#2e7d32;">✅ Password updated!</span>';
+            setTimeout(() => togglePasswordEdit(id), 1200);
+        }
+
+        function deleteUser(id) {
+            if (confirm('Delete this user?')) {
+                loadData();
+                systemData.users = systemData.users.filter(u => u.id !== id);
+                saveData();
+                renderUsers();
+            }
+        }
+
+        function switchManageTab(event, tab) {
+            // Update button styles
+            document.querySelectorAll('.manage-subtab').forEach(btn => {
+                btn.style.borderBottom = '3px solid transparent';
+                btn.style.color = '#999';
+            });
+            event.target.style.borderBottom = '3px solid #14b8a6';
+            event.target.style.color = '#14b8a6';
+
+            // Show/hide sections
+            document.getElementById('manage-columns-section').style.display = tab === 'columns' ? 'block' : 'none';
+            document.getElementById('manage-deadline-section').style.display = tab === 'deadline' ? 'block' : 'none';
+            document.getElementById('manage-exceptions-section').style.display = tab === 'exceptions' ? 'block' : 'none';
+            if (tab === 'exceptions') populateExceptionUsers();
+        }
+
+        function switchColumnType(event, type) {
+            currentColumnType = type;
+            
+            document.getElementById('columns-pickup-btn').style.background = type === 'pickup' ? '#14b8a6' : '#999';
+            document.getElementById('columns-delivery-btn').style.background = type === 'delivery' ? '#14b8a6' : '#999';
+
+            document.getElementById('newColumnName').value = '';
+            document.getElementById('newColumnMandatory').checked = true;
+            renderColumns();
+        }
+
+        function addColumn() {
+            loadData();
+            const type = currentColumnType || 'pickup';
+            const newCol = document.getElementById('newColumnName').value.trim();
+            const isMandatory = document.getElementById('newColumnMandatory').checked;
+            const msg = document.getElementById('column-msg');
+
+            if (!newCol) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Please enter column name</div>';
+                return;
+            }
+
+            // Initialize columns for the type if needed
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            if (!systemData[columnKey]) {
+                systemData[columnKey] = [];
+            }
+
+            // Check if column already exists
+            const exists = systemData[columnKey].some(col => {
+                const colName = typeof col === 'string' ? col : col.name;
+                return colName === newCol;
+            });
+
+            if (exists) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Column already exists</div>';
+                return;
+            }
+            
+            // Add as object with mandatory flag
+            systemData[columnKey].push({
+                name: newCol,
+                mandatory: isMandatory
+            });
+            
+            saveData();
+            renderColumns();
+            document.getElementById('newColumnName').value = '';
+            document.getElementById('newColumnMandatory').checked = true;
+            msg.innerHTML = '<div class="msg msg-success">✅ Column added successfully!</div>';
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        function handleTemplateUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const type = currentColumnType || 'pickup';
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            const msg = document.getElementById('column-msg');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let columns = [];
+                    
+                    if (file.name.endsWith('.csv')) {
+                        // Parse CSV
+                        const csv = e.target.result;
+                        const lines = csv.trim().split('\n');
+                        if (lines.length > 0) {
+                            // Get header row
+                            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                            columns = headers.map(name => ({
+                                name: name,
+                                mandatory: true
+                            }));
+                        }
+                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                        // For Excel, we'll use a simple approach - just read the first row
+                        alert('📝 Excel support: Please save as CSV first or manually enter columns.');
+                        return;
+                    }
+
+                    if (columns.length === 0) {
+                        msg.innerHTML = '<div class="msg msg-error">❌ No columns found in template</div>';
+                        return;
+                    }
+
+                    // Replace existing columns
+                    loadData();
+                    systemData[columnKey] = columns;
+                    saveData();
+                    renderColumns();
+
+                    msg.innerHTML = '<div class="msg msg-success">✅ Template imported! ' + columns.length + ' columns loaded.</div>';
+                    setTimeout(() => msg.textContent = '', 3000);
+                } catch (error) {
+                    msg.innerHTML = '<div class="msg msg-error">❌ Error reading file: ' + error.message + '</div>';
+                }
+            };
+
+            reader.readAsText(file);
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function toggleColumnMandatory(idx, isMandatory) {
+            loadData();
+            const type = currentColumnType || 'pickup';
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            if (systemData[columnKey] && systemData[columnKey][idx]) {
+                if (typeof systemData[columnKey][idx] === 'string') {
+                    systemData[columnKey][idx] = {
+                        name: systemData[columnKey][idx],
+                        mandatory: isMandatory
+                    };
+                } else {
+                    systemData[columnKey][idx].mandatory = isMandatory;
+                }
+                saveData();
+                renderColumns();
+            }
+        }
+
+        function removeColumn(index) {
+            loadData();
+            const type = currentColumnType || 'pickup';
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            const columns = systemData[columnKey];
+
+            if (!columns || columns.length <= 1) {
+                alert('Must have at least one column');
+                return;
+            }
+
+            const col = columns[index];
+            const colName = typeof col === 'string' ? col : col?.name;
+
+            if (!confirm(`❌ Delete column: "${colName}"?\n\nThis cannot be undone.`)) {
+                return;
+            }
+
+            columns.splice(index, 1);
+            saveData();
+            renderColumns();
+        }
+
+        function renderColumns() {
+            loadData();
+            const type = currentColumnType || 'pickup';
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            const container = document.getElementById('column-list');
+            
+            const columns = systemData[columnKey];
+            if (!columns || columns.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No columns found</div>';
+                return;
+            }
+            
+            container.innerHTML = columns.map((col, idx) => {
+                const colName = typeof col === 'string' ? col : col.name;
+                const isMandatory = typeof col === 'string' ? true : (col.mandatory !== false);
+                
+                return `
+                    <div class="column-item">
+                        <div style="flex: 1;">
+                            <div class="column-item-name">
+                                <strong>${idx + 1}.</strong> ${colName}
+                            </div>
+                            <div style="font-size: 11px; color: #999; margin-top: 4px;">
+                                ${isMandatory ? '✓ Mandatory' : '✗ Optional'}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <label class="toggle-switch" style="width: 45px; height: 24px; margin: 0;">
+                                <input type="checkbox" ${isMandatory ? 'checked' : ''} onchange="toggleColumnMandatory(${idx}, this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <button class="btn btn-delete" onclick="removeColumn(${idx})">🗑️ Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // datetime-local inputs expect LOCAL time in "YYYY-MM-DDTHH:mm" format.
+        // Date.toISOString() converts to UTC first, which silently shifts the
+        // displayed time by the browser's timezone offset (e.g. -5:30 in IST)
+        // every time it's used to populate this input. Use this instead.
+        function toLocalInputValue(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function getDefaultCutoffHourMinute(type) {
+            const key = type === 'pickup' ? 'pickupDefaultHour' : 'deliveryDefaultHour';
+            const stored = systemData[key];
+            if (stored && typeof stored.hour === 'number') return stored;
+            return { hour: 15, minute: 0 }; // ultimate fallback: 3 PM
+        }
+
+        function updateDeadlineInfoText() {
+            const type = currentDeadlineType || 'pickup';
+            const d = getDefaultCutoffHourMinute(type);
+            const displayHour = d.hour % 12 === 0 ? 12 : d.hour % 12;
+            const ampm = d.hour < 12 ? 'AM' : 'PM';
+            const timeStr = displayHour + ':' + String(d.minute).padStart(2, '0') + ' ' + ampm;
+            document.getElementById('deadline-card-title').textContent = '📅 Set Submission Deadline (Daily ' + timeStr + ' Cutoff)';
+            document.getElementById('deadline-default-info').innerHTML = '⚠️ Default cutoff is ' + timeStr + ' daily. Extend by 1 day if needed.';
+        }
+
+        function loadDeadline() {
+            loadData();
+            // Load deadline based on current type
+            const type = currentDeadlineType || 'pickup';
+            const deadline = new Date(type === 'pickup' ? (systemData.pickupDeadline || systemData.deliveryDeadline || systemData.deadline) : (systemData.deliveryDeadline || systemData.pickupDeadline || systemData.deadline));
+            document.getElementById('deadline').value = toLocalInputValue(deadline);
+            updateDeadlineInfoText();
+        }
+
+        function updateDeadline() {
+            const type = currentDeadlineType || 'pickup';
+            const val = document.getElementById('deadline').value;
+            
+            if (!val) return;
+            
+            loadData();
+            if (type === 'pickup') {
+                systemData.pickupDeadline = new Date(val).toISOString();
+            } else {
+                systemData.deliveryDeadline = new Date(val).toISOString();
+            }
+            saveData();
+            
+            const msg = document.getElementById('deadline-msg');
+            msg.innerHTML = `<div class="msg msg-success">✅ ${type === 'pickup' ? 'Pickup' : 'Delivery'} Deadline updated for this specific date!</div>`;
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        function quickDeadline(days) {
+            const d = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+            document.getElementById('deadline').value = toLocalInputValue(d);
+        }
+
+        // Persist the TIME currently shown in the date/time box as the new
+        // standing daily default cutoff for this type - applied automatically
+        // every day going forward (not just for the date currently selected).
+        function saveAsDefaultCutoff() {
+            const type = currentDeadlineType || 'pickup';
+            const val = document.getElementById('deadline').value;
+            if (!val) return;
+
+            const chosen = new Date(val);
+            const key = type === 'pickup' ? 'pickupDefaultHour' : 'deliveryDefaultHour';
+
+            loadData();
+            systemData[key] = { hour: chosen.getHours(), minute: chosen.getMinutes() };
+            saveData();
+
+            updateDeadlineInfoText();
+
+            const msg = document.getElementById('deadline-msg');
+            const displayHour = chosen.getHours() % 12 === 0 ? 12 : chosen.getHours() % 12;
+            const ampm = chosen.getHours() < 12 ? 'AM' : 'PM';
+            const timeStr = displayHour + ':' + String(chosen.getMinutes()).padStart(2, '0') + ' ' + ampm;
+            msg.innerHTML = `<div class="msg msg-success">✅ ${timeStr} is now the standing daily default for ${type === 'pickup' ? 'Pickup' : 'Delivery'}.</div>`;
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        function switchDeadlineType(event, type) {
+            currentDeadlineType = type;
+            
+            document.getElementById('deadline-pickup-btn').style.background = type === 'pickup' ? '#14b8a6' : '#999';
+            document.getElementById('deadline-delivery-btn').style.background = type === 'delivery' ? '#14b8a6' : '#999';
+            
+            loadDeadline();
+        }
+
+        function populateExceptionUsers() {
+            loadData();
+            const sel = document.getElementById('exceptionUser');
+            const current = sel.value;
+            sel.innerHTML = '<option value="">— Select user —</option>' +
+                systemData.users.map(u =>
+                    `<option value="${u.username}" ${u.username === current ? 'selected' : ''}>${u.employeeName} (${u.username})</option>`
+                ).join('');
+        }
+
+        function grantException() {
+            const username = document.getElementById('exceptionUser').value.trim().toLowerCase();
+            const hours = parseInt(document.getElementById('exceptionHours').value) || 24;
+            const reason = document.getElementById('exceptionReason').value.trim();
+            const type = currentExceptionType || 'pickup';
+            const msg = document.getElementById('exception-msg');
+
+            if (!username) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Please select a team member</div>';
+                return;
+            }
+            if (!reason) {
+                msg.innerHTML = '<div class="msg msg-error">❌ Please enter a reason</div>';
+                return;
+            }
+
+            loadData();
+            // Validate user still exists
+            if (!systemData.users.find(u => u.username.toLowerCase() === username)) {
+                msg.innerHTML = '<div class="msg msg-error">❌ User not found</div>';
+                return;
+            }
+            
+            // Store exception with type information
+            if (!systemData.exceptions) systemData.exceptions = {};
+            if (!systemData.exceptions[username]) {
+                systemData.exceptions[username] = {};
+            }
+            
+            systemData.exceptions[username][type] = { 
+                hours, 
+                reason, 
+                grantedAt: new Date().toLocaleString(),
+                grantedDate: new Date().toISOString() // machine-readable, used to check "still today" on the upload side
+            };
+            
+            saveData();
+            
+            document.getElementById('exceptionUser').selectedIndex = 0;
+            document.getElementById('exceptionReason').value = '';
+            msg.innerHTML = `<div class="msg msg-success">✅ ${type === 'pickup' ? 'Pickup' : 'Delivery'} Exception granted!</div>`;
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        function switchExceptionType(event, type) {
+            currentExceptionType = type;
+            
+            document.getElementById('exceptions-pickup-btn').style.background = type === 'pickup' ? '#14b8a6' : '#999';
+            document.getElementById('exceptions-delivery-btn').style.background = type === 'delivery' ? '#14b8a6' : '#999';
+        }
+
+        function configureSubmission(submissionIdx) {
+            loadData();
+            const submission = systemData.submissions[submissionIdx];
+            
+            if (!submission) {
+                alert('❌ Submission not found');
+                return;
+            }
+
+            const config = systemData.pickupConfiguration || [];
+            
+            if (config.length === 0) {
+                alert('❌ No Pickup Configuration loaded\n\nPlease load configuration in Settings → Configuration → Pickup Configuration first');
+                return;
+            }
+
+            try {
+                // Get column indices
+                const columns = systemData.columns || [];
+                
+                const sellerNameIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('seller');
+                });
+                
+                const deliveryFCIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('delivery') && name.toLowerCase().includes('fc');
+                });
+
+                // "Key" is just an internal join value derived from Seller Name +
+                // Delivery FC Location - it doesn't need its own dedicated column.
+                // If one exists (named "Key" or similar), we'll still fill it in,
+                // but we no longer require it to exist.
+                const keyIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('key');
+                });
+
+                // The matched 3PL partner needs somewhere to be written. Accept
+                // "3P", "3PL", or any column with "partner" in the name (e.g.
+                // "3PL Partner"), not just an exact "3P" column.
+                const threepIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    const n = name.toLowerCase();
+                    return n === '3p' || n.includes('3pl') || n.includes('partner');
+                });
+
+                if (sellerNameIdx === -1 || deliveryFCIdx === -1) {
+                    const missingCols = [];
+                    if (sellerNameIdx === -1) missingCols.push('"Seller Name"');
+                    if (deliveryFCIdx === -1) missingCols.push('"Delivery FC Location"');
+                    
+                    alert('❌ Required columns not found:\n\n- Need ' + missingCols.join('\n- Need ') + '\n\nAvailable columns:\n' + columns.map(c => typeof c === 'string' ? c : c.name).join('\n'));
+                    return;
+                }
+
+                if (threepIdx === -1) {
+                    alert('❌ No 3PL Partner column found in the template.\n\nAdd a column like "3PL Partner" (or "3P") to your template first.');
+                    return;
+                }
+
+                // Process data and fill Key and 3P columns
+                const newRows = submission.rows.map((row, rowIdx) => {
+                    const newRow = [...row];
+                    const sellerName = row[sellerNameIdx] || '';
+                    const deliveryFC = row[deliveryFCIdx] || '';
+                    const keyValue = (sellerName + deliveryFC).trim();
+                    
+                    // VLOOKUP logic - find matching 3P from config
+                    let matching3P = '';
+                    const keyLower = keyValue.toLowerCase().trim();
+                    
+                    for (let i = 0; i < config.length; i++) {
+                        const configKeyLower = config[i].key.toLowerCase().trim();
+                        
+                        // Match if key equals config key (exact match)
+                        if (keyLower === configKeyLower) {
+                            matching3P = config[i].partner;
+                            break;
+                        }
+                    }
+                    
+                    // Fill in the Key (if such a column exists) and 3P columns in the row
+                    if (keyIdx !== -1) newRow[keyIdx] = keyValue;
+                    newRow[threepIdx] = matching3P;
+                    
+                    return newRow;
+                });
+
+                // Update submission with configured data
+                submission.configuredRows = newRows;
+                submission.isConfigured = true;
+                submission.configuredAt = new Date().toISOString();
+                saveData();
+
+                // Show result
+                const matchedCount = newRows.filter((row, idx) => row[threepIdx]).length;
+                
+                alert(`✅ Configuration Applied!\n\n✅ Matched: ${matchedCount} records\n❌ Not Matched: ${newRows.length - matchedCount} records\n\nKey and 3P columns filled. Click "📊 Export" to export configured data.`);
+                
+                renderSubmissions('pickup');
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        function configureFolder(date, type) {
+            loadData();
+            const allSubs = systemData.submissions || [];
+            
+            // Filter submissions by date and type
+            const folderSubmissions = allSubs.filter(s => {
+                const subDate = new Date(s.timestamp).toLocaleDateString();
+                return subDate === date && (s.status === 'submitted') && (type === 'pickup' ? (!s.type || s.type === 'pickup') : s.type === type);
+            });
+            
+            if (folderSubmissions.length === 0) {
+                alert('❌ No on-time submissions found in this folder');
+                return;
+            }
+            
+            const config = systemData.pickupConfiguration || [];
+            if (config.length === 0) {
+                alert('❌ No Pickup Configuration loaded');
+                return;
+            }
+            
+            try {
+                const columns = systemData.columns || [];
+                const sellerNameIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('seller');
+                });
+                const deliveryFCIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('delivery') && name.toLowerCase().includes('fc');
+                });
+
+                // "Key" is just an internal join value derived from Seller Name +
+                // Delivery FC Location - doesn't need its own dedicated column.
+                const keyIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    return name.toLowerCase().includes('key');
+                });
+
+                // Accept "3P", "3PL", or any "...Partner" column (e.g. "3PL Partner")
+                const threepIdx = columns.findIndex(c => {
+                    const name = typeof c === 'string' ? c : c.name;
+                    const n = name.toLowerCase();
+                    return n === '3p' || n.includes('3pl') || n.includes('partner');
+                });
+                
+                if (sellerNameIdx === -1 || deliveryFCIdx === -1) {
+                    alert('❌ Required columns not found');
+                    return;
+                }
+
+                if (threepIdx === -1) {
+                    alert('❌ No 3PL Partner column found in the template.\n\nAdd a column like "3PL Partner" (or "3P") to your template first.');
+                    return;
+                }
+                
+                let totalMatched = 0;
+                let totalRecords = 0;
+                
+                folderSubmissions.forEach(submission => {
+                    const newRows = submission.rows.map(row => {
+                        const newRow = [...row];
+                        const sellerName = row[sellerNameIdx] || '';
+                        const deliveryFC = row[deliveryFCIdx] || '';
+                        const keyValue = (sellerName + deliveryFC).trim();
+                        
+                        let matching3P = '';
+                        const keyLower = keyValue.toLowerCase().trim();
+                        
+                        for (let i = 0; i < config.length; i++) {
+                            const configKeyLower = config[i].key.toLowerCase().trim();
+                            if (keyLower === configKeyLower) {
+                                matching3P = config[i].partner;
+                                break;
+                            }
+                        }
+                        
+                        // Fill in Key (if such a column exists) and 3P columns
+                        if (keyIdx !== -1) newRow[keyIdx] = keyValue;
+                        newRow[threepIdx] = matching3P;
+                        
+                        return newRow;
+                    });
+                    
+                    submission.configuredRows = newRows;
+                    submission.isConfigured = true;
+                    submission.configuredAt = new Date().toISOString();
+                    
+                    totalMatched += newRows.filter((row, idx) => row[threepIdx]).length;
+                    totalRecords += newRows.length;
+                });
+                
+                saveData();
+                alert(`✅ Folder Configuration Applied!\n\n📅 Date: ${date}\n📊 Total Records: ${totalRecords}\n✅ Matched: ${totalMatched}\n❌ Not Matched: ${totalRecords - totalMatched}`);
+                renderSubmissions(type);
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+        
+        function exportFolderToSheet(date, type = 'pickup') {
+            loadData();
+            const allSubs = systemData.submissions || [];
+            
+            // Filter submissions by date and type - ONLY SUBMITTED
+            const folderSubmissions = allSubs.filter(s => {
+                const subDate = new Date(s.timestamp).toLocaleDateString();
+                return subDate === date && (s.status === 'submitted') && (type === 'pickup' ? (!s.type || s.type === 'pickup') : s.type === type);
+            });
+            
+            if (folderSubmissions.length === 0) {
+                alert('❌ No submitted submissions found in this folder');
+                return;
+            }
+            
+            const sheetId = type === 'pickup' ? systemData.googleSheetIdPickup : systemData.googleSheetIdDelivery;
+            if (!sheetId) {
+                alert('❌ Please configure ' + (type === 'pickup' ? 'Pickup' : 'Delivery') + ' Sheet ID first');
+                return;
+            }
+            
+            try {
+                const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+                const columns = (systemData[columnKey] && systemData[columnKey].length > 0) 
+                    ? systemData[columnKey].map(c => typeof c === 'string' ? c : c.name)
+                    : (type === 'pickup' ? DEFAULT_FIELDS : DEFAULT_DELIVERY_FIELDS);
+                
+                let exportColumns = columns;
+                
+                // Prepare data from all submitted submissions in folder
+                let allRows = [];
+                folderSubmissions.forEach(submission => {
+                    const dataRows = submission.configuredRows && submission.configuredRows.length > 0
+                        ? submission.configuredRows
+                        : submission.rows;
+                    allRows = allRows.concat(dataRows);
+                });
+                
+                // Create TSV with only template columns
+                let tsv = columns.join('\t') + '\n';
+                allRows.forEach(row => {
+                    const rowData = Array.isArray(row)
+                        ? columns.map((col, colIdx) => row[colIdx] || '')
+                        : columns.map((col, colIdx) => row[colIdx] || '');
+                    tsv += rowData.map(cell => (cell || '').toString().replace(/\t/g, ' ')).join('\t') + '\n';
+                });
+                
+                // Copy to clipboard
+                const textArea = document.createElement('textarea');
+                textArea.value = tsv;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Open Google Sheet
+                window.open(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`, '_blank');
+                
+                alert(`✅ Folder data copied to clipboard!\n\n📅 Date: ${date}\n📊 Submitted Submissions: ${folderSubmissions.length}\n📝 Total Records: ${allRows.length}\n\n📝 Steps:\n1. Google Sheet opened ↑\n2. Click cell A1\n3. Paste with Ctrl+V`);
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        function switchSubmissionType(event, type) {
+            document.getElementById('submissions-pickup-btn').style.background = type === 'pickup' ? '#14b8a6' : '#999';
+            document.getElementById('submissions-delivery-btn').style.background = type === 'delivery' ? '#14b8a6' : '#999';
+
+            document.getElementById('submissions-pickup-card').style.display = type === 'pickup' ? 'block' : 'none';
+            document.getElementById('submissions-delivery-card').style.display = type === 'delivery' ? 'block' : 'none';
+            
+            updateStats(type);
+        }
+
+        function configurePickupData() {
+            loadData();
+            const config = systemData.pickupConfiguration;
+            
+            if (!config || config.length === 0) {
+                alert('❌ No pickup configuration loaded');
+                return;
+            }
+
+            // Get pickup submissions
+            const submissions = systemData.submissions || [];
+            const pickupSubs = submissions.filter(s => !s.type || s.type === 'pickup');
+
+            if (pickupSubs.length === 0) {
+                alert('❌ No pickup submissions to configure');
+                return;
+            }
+
+            try {
+                // Apply configuration mapping to submissions
+                let configuredCount = 0;
+                pickupSubs.forEach(submission => {
+                    // Mark submission as configured
+                    submission.isConfigured = true;
+                    submission.configuredAt = new Date().toISOString();
+                    configuredCount++;
+                });
+
+                saveData();
+                alert('✅ Configuration applied to ' + configuredCount + ' submissions!\n\nClick 📊 Sheet to export configured data to Google Sheets.');
+                renderSubmissions('pickup');
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        function updateStats(type = 'pickup') {
+            loadData();
+            
+            // Filter submissions by type
+            const allSubs = systemData.submissions || [];
+            let filteredSubs;
+            
+            if (type === 'pickup') {
+                // Show submissions without type (old ones) OR with type='pickup'
+                filteredSubs = allSubs.filter(s => !s.type || s.type === 'pickup');
+            } else {
+                // Show ONLY submissions with type='delivery'
+                filteredSubs = allSubs.filter(s => s.type === 'delivery');
+            }
+            
+            const totalSubs = filteredSubs.length;
+            const totalRecords = filteredSubs.reduce((sum, s) => sum + (s.records || 0), 0);
+            const uniqueUsers = new Set(filteredSubs.map(s => s.username)).size;
+            
+            const prefix = type === 'pickup' ? 'stat-pickup' : 'stat-delivery';
+            document.getElementById(prefix + '-total').textContent = totalSubs;
+            document.getElementById(prefix + '-records').textContent = totalRecords;
+            document.getElementById(prefix + '-users').textContent = uniqueUsers;
+
+            renderSubmissions(type);
+        }
+
+        function renderSubmissions(type = 'pickup') {
+            loadData();
+            
+            // Filter submissions by type
+            const allSubs = systemData.submissions || [];
+            let filteredSubs;
+            
+            if (type === 'pickup') {
+                // Show submissions without type (old ones) OR with type='pickup'
+                filteredSubs = allSubs.filter(s => !s.type || s.type === 'pickup');
+            } else {
+                // Show ONLY submissions with type='delivery'
+                filteredSubs = allSubs.filter(s => s.type === 'delivery');
+            }
+            
+            const tableId = type === 'pickup' ? 'submissions-table-pickup' : 'submissions-table-delivery';
+            
+            if (filteredSubs.length === 0) {
+                document.getElementById(tableId).innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999; padding: 20px;">No submissions yet</td></tr>';
+                return;
+            }
+
+            // Group by date
+            const grouped = {};
+            filteredSubs.forEach((s, idx) => {
+                const date = new Date(s.timestamp).toLocaleDateString();
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push({ ...s, idx, actualIdx: allSubs.indexOf(s) });
+            });
+            
+            const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+            
+            // Sort files within each folder by timestamp (newest first)
+            Object.keys(grouped).forEach(date => {
+                grouped[date].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            });
+            
+            let html = '';
+            
+            // Add top control bar
+            html += `<tr style="background: #f0f0f0; border-bottom: 2px solid #ddd;">
+                    <td colspan="6" style="padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 13px; color: #666;">
+                                📊 ${filteredSubs.length} total submissions | ${sortedDates.length} folders
+                            </span>
+                            <button id="delete-selected-btn" onclick="deleteSelectedFolders('${type}')" style="display: none; background: #d32f2f; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;">🗑️ Delete Selected</button>
+                        </div>
+                    </td>
+                </tr>`;
+            
+            sortedDates.forEach(date => {
+                const folderSubmissions = grouped[date];
+                const submittedSubmissions = folderSubmissions.filter(s => s.status === 'submitted');
+                const safeDate = date.replace(/\//g, '-');
+                
+                html += `<tr style="background: #f8f8f8;">
+                    <td style="padding: 12px; text-align: center;">
+                        <input type="checkbox" class="folder-checkbox" data-date="${safeDate}" onchange="updateDeleteButton('${type}')" style="cursor: pointer; width: 18px; height: 18px;">
+                    </td>
+                    <td colspan="5" style="padding: 12px 0px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0px 12px;">
+                            <span style="font-weight: 600; color: #333;">📅 ${date}</span>
+                            <span style="color: #666; font-size: 12px;">${folderSubmissions.length} submission${folderSubmissions.length !== 1 ? 's' : ''}</span>
+                            <div style="display: flex; gap: 8px;">
+                                ${type === 'pickup' && submittedSubmissions.length > 0 ? `<button onclick="configureFolder('${date}', '${type}')" style="background: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">⚙️ Configure</button>` : ''}
+                                ${submittedSubmissions.length > 0 ? `<button onclick="exportFolderToSheet('${date}', '${type}')" style="background: #34a853; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">📊 Export</button>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                
+                grouped[date].forEach((s) => {
+                    html += `<tr class="submission-row" data-search="${s.username} ${s.uploadedAt} ${s.status}">
+                        <td style="padding: 12px;"></td>
+                        <td style="padding-left: 30px;"><strong>${s.username || 'Unknown'}</strong></td>
+                        <td>${s.records || 0}</td>
+                        <td><span style="background: ${s.status === 'submitted' ? '#e8f5e9' : '#ffebee'}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: ${s.status === 'submitted' ? '#2e7d32' : '#d32f2f'};">${s.status === 'submitted' ? '✅ Submitted' : '❌ Expired'}</span></td>
+                        <td>${s.uploadedAt || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-view" onclick="viewSubmission('${s.timestamp}', '${type}')">View</button>
+                        </td>
+                    </tr>`;
+                });
+            });
+            
+            document.getElementById(tableId).innerHTML = html;
+        }
+
+        // Simple configuration for CSV copy
+        function saveWebhookConfig() {
+            // Try modal input first, then settings input
+            const modalInput = document.getElementById('modalGoogleSheetId');
+            const settingsInput = document.getElementById('googleSheetId');
+            const sheetId = (modalInput && modalInput.value) ? modalInput.value.trim() : 
+                           (settingsInput && settingsInput.value) ? settingsInput.value.trim() : '';
+            
+            if (!sheetId) {
+                alert('❌ Please enter Google Sheet ID');
+                return;
+            }
+            
+            localStorage.setItem('googleSheetId', sheetId);
+            updateWebhookStatus();
+            updateModalStatus();
+            
+            // Update both inputs
+            if (settingsInput) settingsInput.value = sheetId;
+            if (modalInput) modalInput.value = sheetId;
+            
+            alert('✅ Sheet ID saved!\n\nReady to use! Click 📊 Sheet on submissions.');
+        }
+
+        function clearWebhookConfig() {
+            if (confirm('Clear Sheet ID?')) {
+                localStorage.removeItem('googleSheetId');
+                localStorage.removeItem('webhookUrl');
+                document.getElementById('googleSheetId').value = '';
+                updateWebhookStatus();
+                alert('✅ Cleared!');
+            }
+        }
+
+        function testWebhookSetup() {
+            const sheetId = document.getElementById('googleSheetId').value.trim();
+            
+            if (!sheetId) {
+                alert('❌ Please enter Google Sheet ID');
+                return;
+            }
+            
+            window.open(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`, '_blank');
+            alert('✅ Sheet ID looks good!\n\nNow go to 📊 Submissions and click 📊 Sheet on any submission.');
+        }
+
+        function getWebhookUrl() {
+            return localStorage.getItem('webhookUrl') || '';
+        }
+
+        function getGoogleSheetId() {
+            return localStorage.getItem('googleSheetId') || '';
+        }
+
+        function updateWebhookStatus() {
+            const sheetId = getGoogleSheetId();
+            const statusEl = document.getElementById('webhookStatus');
+            const sheetEl = document.getElementById('currentSheetId');
+
+            if (sheetId) {
+                statusEl.textContent = '✅ Ready!';
+                statusEl.style.color = '#2e7d32';
+                sheetEl.textContent = sheetId.substring(0, 60) + (sheetId.length > 60 ? '...' : '');
+            } else {
+                statusEl.textContent = '❌ Not configured';
+                statusEl.style.color = '#d32f2f';
+                sheetEl.textContent = 'None';
+            }
+        }
+
+        function exportToGoogleSheet(idx, type = 'pickup') {
+            loadData();
+            const sheetId = type === 'pickup' ? systemData.googleSheetIdPickup : systemData.googleSheetIdDelivery;
+            
+            if (!sheetId) {
+                alert('❌ Please configure ' + (type === 'pickup' ? 'Pickup' : 'Delivery') + ' Sheet ID first!\n\nGo to 🔧 Settings → Configuration → Google Sheet Config');
+                return;
+            }
+            
+            const submission = systemData.submissions[idx];
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            let columns = (systemData[columnKey] && systemData[columnKey].length > 0) 
+                ? systemData[columnKey].map(c => typeof c === 'string' ? c : c.name)
+                : (type === 'pickup' ? DEFAULT_FIELDS : DEFAULT_DELIVERY_FIELDS);
+            
+            // Use configured rows if available, otherwise use original rows
+            const dataRows = submission.configuredRows && submission.configuredRows.length > 0 
+                ? submission.configuredRows 
+                : submission.rows;
+            
+            // Create TAB-SEPARATED format (Google Sheets auto-splits this!)
+            let tsv = columns.join('\t') + '\n';
+            dataRows.forEach(row => {
+                const rowData = Array.isArray(row) 
+                    ? columns.map((col, colIdx) => row[colIdx] || '')
+                    : columns.map((col, colIdx) => row[colIdx] || '');
+                tsv += rowData.map(cell => (cell || '').toString().replace(/\t/g, ' ')).join('\t') + '\n';
+            });
+            
+            // Copy to clipboard
+            const textArea = document.createElement('textarea');
+            textArea.value = tsv;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Open Google Sheet
+            window.open(`https://docs.google.com/spreadsheets/d/${sheetId}/edit`, '_blank');
+            
+            const configStatus = submission.isConfigured ? ' (with Key & 3P filled)' : '';
+            alert('✅ ' + (type === 'pickup' ? '📦 Pickup' : '🚚 Delivery') + ' data copied to clipboard!' + configStatus + '\n\n📝 Steps:\n1. Google Sheet opened ↑\n2. Click cell A1\n3. Paste with Ctrl+V\n4. Data auto-fills columns! ✨');
+        }
+
+        function filterSubmissions(type = 'pickup') {
+            const inputId = type === 'pickup' ? 'submissionSearchPickup' : 'submissionSearchDelivery';
+            const searchText = document.getElementById(inputId).value.toLowerCase();
+            const rows = document.querySelectorAll('.submission-row');
+            
+            rows.forEach(row => {
+                const text = row.getAttribute('data-search').toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+
+        function viewSubmission(timestamp, type = 'pickup') {
+            loadData();
+            const sub = systemData.submissions.find(s => s.timestamp === timestamp);
+            const columnKey = type === 'pickup' ? 'columns' : 'deliveryColumns';
+            const columns = systemData[columnKey] && systemData[columnKey].length > 0 ? systemData[columnKey] : (type === 'pickup' ? DEFAULT_FIELDS : DEFAULT_DELIVERY_FIELDS);
+            const columnNames = columns.map(col => typeof col === 'string' ? col : col.name);
+            
+            // Calculate summary stats
+            const totalQty = sub.rows.reduce((sum, row) => {
+                const qtyIdx = columnNames.indexOf('Qty');
+                return sum + (parseInt(row[qtyIdx]) || 0);
+            }, 0);
+            
+            const totalBoxes = sub.rows.reduce((sum, row) => {
+                const boxIdx = columnNames.indexOf('No of boxes');
+                return sum + (parseInt(row[boxIdx]) || 0);
+            }, 0);
+            
+            const totalWeight = sub.rows.reduce((sum, row) => {
+                const wtIdx = columnNames.indexOf('Weight');
+                return sum + (parseFloat(row[wtIdx]) || 0);
+            }, 0);
+            
+            const submittedDate = new Date(sub.timestamp);
+            const deadline = new Date(systemData.deadline);
+            const wasOnTime = submittedDate <= deadline;
+            
+            const html = `
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <p><strong>👤 Username:</strong> ${sub.username}</p>
+                            <p><strong>👨 Employee:</strong> ${sub.employeeName}</p>
+                            <p><strong>📅 Date Submitted:</strong> ${sub.uploadedAt}</p>
+                            <p><strong>📊 Total Records:</strong> ${sub.records}</p>
+                        </div>
+                        <div>
+                            <p><strong>✅ Status:</strong> ${sub.status === 'submitted' ? '✅ Submitted' : '❌ Expired'}</p>
+                            <p><strong>⏰ On Time:</strong> ${wasOnTime ? '✅ Before Deadline' : '❌ After Deadline'}</p>
+                            <p><strong>📦 Total Qty:</strong> ${totalQty}</p>
+                            <p><strong>📫 Total Boxes:</strong> ${totalBoxes}</p>
+                            <p><strong>⚖️ Total Weight:</strong> ${totalWeight.toFixed(2)} kg</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="downloadSubmission('${timestamp}', '${sub.username}')">📥 Download</button>
+                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px; background: #4CAF50;" onclick="editSubmission('${timestamp}')">✏️ Edit</button>
+                    <input type="text" id="searchInput" placeholder="🔍 Search in table..." style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 200px; max-width: 300px;" onkeyup="filterTable()">
+                    <button class="btn btn-secondary" style="width: auto; padding: 10px 20px;" onclick="closeModal()">Close</button>
+                </div>
+                
+                <hr style="margin: 15px 0;">
+                <p><strong>📋 Order Details:</strong></p>
+                <div style="overflow-x: auto; margin-top: 10px;">
+                    <table class="table" id="submissionTable" style="font-size: 12px;">
+                        <thead><tr>${columnNames.map(col => `<th>${col}</th>`).join('')}</tr></thead>
+                        <tbody>${sub.rows.map(row => `<tr>${row.slice(0, columnNames.length).map(cell => `<td>${cell || '-'}</td>`).join('')}</tr>`).join('')}</tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('viewModal').classList.add('active');
+        }
+        
+        function filterTable() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('submissionTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('viewModal').classList.remove('active');
+        }
+
+        function downloadSubmission(timestamp, username) {
+            loadData();
+            const sub = systemData.submissions.find(s => s.timestamp === timestamp);
+            const columns = systemData.columns && systemData.columns.length > 0 ? systemData.columns : DEFAULT_FIELDS;
+            const columnNames = columns.map(col => typeof col === 'string' ? col : col.name);
+            
+            const rows = [columnNames, ...sub.rows];
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+            
+            const filename = `${username}_submission_${new Date(sub.timestamp).toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        function editSubmission(timestamp) {
+            loadData();
+            const idx = systemData.submissions.findIndex(s => s.timestamp === timestamp);
+            const sub = systemData.submissions[idx];
+            const columns = systemData.columns && systemData.columns.length > 0 ? systemData.columns : DEFAULT_FIELDS;
+            const columnNames = columns.map(col => typeof col === 'string' ? col : col.name);
+            
+            let html = `
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="editSearchInput" placeholder="🔍 Search rows (PO, Seller, etc)..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;" onkeyup="filterEditTable()">
+                </div>
+                <div style="max-height: 400px; overflow-y: auto; margin-bottom: 15px;">
+                    <table class="table" id="editTable" style="font-size: 12px;">
+                        <thead>
+                            <tr>
+                                ${columnNames.map(col => `<th>${col}</th>`).join('')}
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sub.rows.map((row, rIdx) => `
+                                <tr class="edit-row" data-search="${row.join(' ').toLowerCase()}">
+                                    ${columnNames.map((col, cIdx) => `
+                                        <td>
+                                            <input type="text" id="cell_${rIdx}_${cIdx}" value="${row[cIdx] || ''}" 
+                                                style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px;">
+                                        </td>
+                                    `).join('')}
+                                    <td>
+                                        <button class="btn btn-delete" style="padding: 4px 8px;" onclick="deleteEditRow(${idx}, ${rIdx})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="saveEditSubmission(${idx})">💾 Save Changes</button>
+                    <button class="btn btn-secondary" style="width: auto; padding: 10px 20px;" onclick="viewSubmission('${sub.timestamp}')">Cancel</button>
+                </div>
+            `;
+            
+            document.getElementById('modal-body').innerHTML = html;
+        }
+
+        function filterEditTable() {
+            const searchText = document.getElementById('editSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.edit-row');
+            
+            rows.forEach(row => {
+                const text = row.getAttribute('data-search');
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+
+        function deleteEditRow(idx, rIdx) {
+            if (confirm('Delete this row?')) {
+                loadData();
+                systemData.submissions[idx].rows.splice(rIdx, 1);
+                systemData.submissions[idx].records = systemData.submissions[idx].rows.length;
+                saveData();
+                editSubmission(idx);
+            }
+        }
+
+        function saveEditSubmission(idx) {
+            loadData();
+            const sub = systemData.submissions[idx];
+            const columns = systemData.columns && systemData.columns.length > 0 ? systemData.columns : DEFAULT_FIELDS;
+            const columnNames = columns.map(col => typeof col === 'string' ? col : col.name);
+            
+            // Get all edited values
+            const updatedRows = [];
+            for (let rIdx = 0; rIdx < sub.rows.length; rIdx++) {
+                const row = [];
+                for (let cIdx = 0; cIdx < columnNames.length; cIdx++) {
+                    const cell = document.getElementById(`cell_${rIdx}_${cIdx}`);
+                    row.push(cell ? cell.value : '');
+                }
+                updatedRows.push(row);
+            }
+            
+            // Update submission
+            systemData.submissions[idx].rows = updatedRows;
+            saveData();
+            
+            alert('✅ Changes saved successfully!');
+            viewSubmission(systemData.submissions[idx].timestamp);
+        }
+
+        function deleteEditRow(idx, rIdx) {
+            if (confirm('Delete this row?')) {
+                loadData();
+                systemData.submissions[idx].rows.splice(rIdx, 1);
+                systemData.submissions[idx].records = systemData.submissions[idx].rows.length;
+                saveData();
+                editSubmission(idx);
+            }
+        }
+
+        function openGoogleSheetModal() {
+            document.getElementById('googleSheetModal').style.display = 'block';
+            document.getElementById('modalGoogleSheetIdPickup').value = systemData.googleSheetIdPickup || '';
+            document.getElementById('modalGoogleSheetIdDelivery').value = systemData.googleSheetIdDelivery || '';
+            updateModalStatus();
+        }
+
+        function closeGoogleSheetModal() {
+            document.getElementById('googleSheetModal').style.display = 'none';
+        }
+
+        function updateModalStatus() {
+            const pickupId = systemData.googleSheetIdPickup;
+            const deliveryId = systemData.googleSheetIdDelivery;
+
+            // Update Pickup status
+            const pickupStatusEl = document.getElementById('modalPickupStatus');
+            const pickupIdEl = document.getElementById('modalPickupSheetId');
+            if (pickupId) {
+                pickupStatusEl.textContent = '✅ Configured';
+                pickupStatusEl.style.color = '#2e7d32';
+                pickupIdEl.textContent = pickupId;
+            } else {
+                pickupStatusEl.textContent = '❌ Not configured';
+                pickupStatusEl.style.color = '#d32f2f';
+                pickupIdEl.textContent = 'None';
+            }
+
+            // Update Delivery status
+            const deliveryStatusEl = document.getElementById('modalDeliveryStatus');
+            const deliveryIdEl = document.getElementById('modalDeliverySheetId');
+            if (deliveryId) {
+                deliveryStatusEl.textContent = '✅ Configured';
+                deliveryStatusEl.style.color = '#2e7d32';
+                deliveryIdEl.textContent = deliveryId;
+            } else {
+                deliveryStatusEl.textContent = '❌ Not configured';
+                deliveryStatusEl.style.color = '#d32f2f';
+                deliveryIdEl.textContent = 'None';
+            }
+        }
+
+        function saveWebhookConfig() {
+            const pickupId = document.getElementById('modalGoogleSheetIdPickup').value.trim();
+            const deliveryId = document.getElementById('modalGoogleSheetIdDelivery').value.trim();
+
+            if (!pickupId && !deliveryId) {
+                alert('❌ Please enter at least one Sheet ID');
+                return;
+            }
+
+            loadData();
+            systemData.googleSheetIdPickup = pickupId;
+            systemData.googleSheetIdDelivery = deliveryId;
+            saveData();
+
+            updateModalStatus();
+            updateConfigurationBadges();
+            alert('✅ Google Sheet IDs saved!\n\n📦 Pickup: ' + (pickupId || 'Not set') + '\n🚚 Delivery: ' + (deliveryId || 'Not set'));
+        }
+
+        function testWebhookSetup() {
+            const pickupId = systemData.googleSheetIdPickup;
+            const deliveryId = systemData.googleSheetIdDelivery;
+
+            if (!pickupId && !deliveryId) {
+                alert('❌ Please configure at least one Sheet ID first');
+                return;
+            }
+
+            alert('✅ Sheet ID looks good!\n\n📦 Pickup Sheet: ' + (pickupId ? '✅ Ready' : '⚠️ Not set') + '\n🚚 Delivery Sheet: ' + (deliveryId ? '✅ Ready' : '⚠️ Not set') + '\n\nNow go to 📈 Data and click 📊 Sheet on any submission.');
+        }
+
+        function clearWebhookConfig() {
+            if (confirm('⚠️ Clear all Sheet IDs? This cannot be undone.')) {
+                loadData();
+                systemData.googleSheetIdPickup = '';
+                systemData.googleSheetIdDelivery = '';
+                saveData();
+                document.getElementById('modalGoogleSheetIdPickup').value = '';
+                document.getElementById('modalGoogleSheetIdDelivery').value = '';
+                updateModalStatus();
+                alert('✅ Configuration cleared');
+            }
+        }
+
+        function getGoogleSheetId(type = 'pickup') {
+            loadData();
+            return type === 'pickup' ? (systemData.googleSheetIdPickup || '') : (systemData.googleSheetIdDelivery || '');
+        }
+
+        function updateWebhookStatus() {
+            const pickupId = systemData.googleSheetIdPickup;
+            const deliveryId = systemData.googleSheetIdDelivery;
+            // Status update function for external calls
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('googleSheetModal');
+            if (modal && event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        loadData();
+    </script>
+
+    <!-- Google Sheet Integration Modal -->
+    <div id="googleSheetModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div style="background: white; max-width: 700px; margin: 50px auto; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #333; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 24px;">🔗</span> Google Sheet Integration
+                </h2>
+                <button onclick="closeGoogleSheetModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
+            </div>
+
+            <!-- Setup Instructions -->
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196F3;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; color: #1976D2;">📋 How It Works</h3>
+                <p style="font-size: 12px; color: #555; line-height: 1.8; margin: 0;">
+                    <strong>Step 1:</strong> Create Google Sheets (separate for Pickup & Delivery)<br>
+                    <strong>Step 2:</strong> Enter Sheet IDs below<br>
+                    <strong>Step 3:</strong> Click "📊 Sheet" on submissions<br>
+                    <strong>Step 4:</strong> Data copies to clipboard<br>
+                    <strong>Step 5:</strong> Paste with Ctrl+V into correct Sheet<br>
+                    <strong>Result:</strong> Data fills all columns automatically! ✨
+                </p>
+            </div>
+
+            <!-- Pickup Sheet Configuration -->
+            <div style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #14b8a6;">
+                <h4 style="margin-top: 0; margin-bottom: 15px; color: #14b8a6; display: flex; align-items: center; gap: 8px;">
+                    📦 Pickup Sheet Configuration
+                </h4>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Google Sheet ID:</label>
+                <input type="text" id="modalGoogleSheetIdPickup" placeholder="Paste Pickup Sheet ID..." 
+                    style="width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; margin-bottom: 8px; box-sizing: border-box;">
+                <p style="font-size: 11px; color: #999; margin: 0;">
+                    Find it in your Google Sheet URL:<br>
+                    <code style="background: #f5f5f5; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</code>
+                </p>
+            </div>
+
+            <!-- Delivery Sheet Configuration -->
+            <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                <h4 style="margin-top: 0; margin-bottom: 15px; color: #ff9800; display: flex; align-items: center; gap: 8px;">
+                    🚚 Delivery Sheet Configuration
+                </h4>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Google Sheet ID:</label>
+                <input type="text" id="modalGoogleSheetIdDelivery" placeholder="Paste Delivery Sheet ID..." 
+                    style="width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 13px; margin-bottom: 8px; box-sizing: border-box;">
+                <p style="font-size: 11px; color: #999; margin: 0;">
+                    Find it in your Google Sheet URL:<br>
+                    <code style="background: #f5f5f5; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 5px;">https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</code>
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="saveWebhookConfig()" style="flex: 1; background: #667eea; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                    💾 Save Sheet IDs
+                </button>
+                <button onclick="testWebhookSetup()" style="flex: 1; background: #34a853; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                    ✅ Test
+                </button>
+            </div>
+
+            <!-- Status -->
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-top: 0; margin-bottom: 15px; color: #333;">ℹ️ Current Status</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p style="font-size: 12px; color: #666; margin: 0; margin-bottom: 8px;">
+                            <strong>📦 Pickup:</strong>
+                        </p>
+                        <p style="font-size: 11px; margin: 0;">
+                            <span id="modalPickupStatus" style="color: #d32f2f;">❌ Not configured</span><br>
+                            <span id="modalPickupSheetId" style="font-family: monospace; font-size: 10px; color: #999; word-break: break-all;">None</span>
+                        </p>
+                    </div>
+                    <div>
+                        <p style="font-size: 12px; color: #666; margin: 0; margin-bottom: 8px;">
+                            <strong>🚚 Delivery:</strong>
+                        </p>
+                        <p style="font-size: 11px; margin: 0;">
+                            <span id="modalDeliveryStatus" style="color: #d32f2f;">❌ Not configured</span><br>
+                            <span id="modalDeliverySheetId" style="font-family: monospace; font-size: 10px; color: #999; word-break: break-all;">None</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin-top: 0; margin-bottom: 8px; color: #e65100;">❓ Need Help?</h4>
+                <p style="font-size: 11px; color: #666; margin: 0; line-height: 1.6;">
+                    <strong>Q: Why separate sheets for Pickup & Delivery?</strong><br>
+                    Keep data organized by leg - easier to manage and analyze<br><br>
+                    <strong>Q: What happens when I click 📊 Sheet?</strong><br>
+                    Data copies to clipboard and appropriate Sheet opens (Pickup or Delivery)<br><br>
+                    <strong>Q: Why tab-separated format?</strong><br>
+                    Google Sheets auto-splits tabs into columns automatically!
+                </p>
+            </div>
+
+            <!-- Clear Button -->
+            <button onclick="clearWebhookConfig()" style="width: 100%; background: #d32f2f; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                🗑️ Clear Configuration
+            </button>
+        </div>
+    </div>
+</body>
+</html>
+<!-- v1784742309 -->
+<!-- 2026-07-23T00:39:01.820197 -->
