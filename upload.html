@@ -486,27 +486,27 @@
             }
         }
 
-        async function syncFromServer() {
-            if (_pushPending) return;
-            try {
-                const res = await fetch(API + '?id=eq.1', { headers: HEADERS });
-                if (!res.ok) return;
-                const rows = await res.json();
-                if (!rows || !rows.length || !rows[0].data) return;
-                const serverData = rows[0].data;
-
-                loadData();
-                if (serverData && (serverData.users || []).length) {
-                    const serverTs = new Set((serverData.submissions || []).map(s => s.timestamp));
+        const serverTs = new Set((serverData.submissions || []).map(s => s.timestamp));
                     const localOnly = (systemData.submissions || []).filter(s => !serverTs.has(s.timestamp));
+                    // Merge: server wins for config, but keep all submissions from both
                     systemData = serverData;
                     if (localOnly.length) {
                         systemData.submissions = [...(systemData.submissions || []), ...localOnly];
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                    }
+                    // Restore rows from local for any submission that has empty rows on server
+                    const localSubs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').submissions || [];
+                    systemData.submissions = systemData.submissions.map(s => {
+                        if (!s.rows || s.rows.length === 0) {
+                            const local = localSubs.find(l => l.timestamp === s.timestamp);
+                            if (local && local.rows && local.rows.length > 0) return local;
+                        }
+                        return s;
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                    if (localOnly.length) {
                         await pushToServer();
                         return;
                     }
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
                 } else {
                     // Server is empty - bootstrap it with the seed list MERGED
                     // with whatever's already in local storage on this device,
@@ -520,7 +520,6 @@
                 console.error("Sync failed:", error);
             }
         }
-
         async function login(e) {
             e.preventDefault();
             const username = document.getElementById('login-username').value.trim();
