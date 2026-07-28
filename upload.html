@@ -486,7 +486,18 @@
             }
         }
 
-        const serverTs = new Set((serverData.submissions || []).map(s => s.timestamp));
+        async function syncFromServer() {
+            if (_pushPending) return;
+            try {
+                const res = await fetch(API + '?id=eq.1', { headers: HEADERS });
+                if (!res.ok) return;
+                const rows = await res.json();
+                if (!rows || !rows.length || !rows[0].data) return;
+                const serverData = rows[0].data;
+
+                loadData();
+                if (serverData && (serverData.users || []).length) {
+                    const serverTs = new Set((serverData.submissions || []).map(s => s.timestamp));
                     const localOnly = (systemData.submissions || []).filter(s => !serverTs.has(s.timestamp));
                     // Merge: server wins for config, but keep all submissions from both
                     systemData = serverData;
