@@ -992,9 +992,10 @@
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
                     await pushToServer();
                 }
-            } catch             await pushToServer();
-                }
-            } catch
+            } catch (e) {
+                console.warn('Could not sync from server:', e.message);
+            }
+        }
 
         async function login(e) {
             e.preventDefault();
