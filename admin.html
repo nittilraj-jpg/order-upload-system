@@ -770,6 +770,42 @@
             exceptions: {},
             columns: [...DEFAULT_FIELDS]
         };
+        function safeSaveToLocal(data) {
+    try {
+        // Attempt 1: Try to save normally
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+        console.warn("Storage Quota Exceeded. Freeing up space by clearing old cached rows...");
+        const safeData = JSON.parse(JSON.stringify(data));
+        
+        if (safeData.submissions) {
+            // Sort submissions by newest first
+            safeData.submissions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Keep heavy row data for only the 3 most recent uploads, clear the rest
+            safeData.submissions.forEach((sub, index) => {
+                if (index >= 3) {
+                    sub.rows = []; // Clear heavy raw data
+                    if (sub.configuredRows) sub.configuredRows = [];
+                }
+            });
+        }
+        
+        try {
+            // Attempt 2: Try saving with cleared older rows
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(safeData));
+        } catch (extremeError) {
+            // Attempt 3: If still failing, clear ALL cached rows to prevent system crash
+            if (safeData.submissions) {
+                safeData.submissions.forEach(sub => {
+                    sub.rows = [];
+                    if (sub.configuredRows) sub.configuredRows = [];
+                });
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(safeData));
+        }
+    }
+}
 
         function getDefaultDeadline() {
             const today = new Date();
@@ -871,7 +907,7 @@
         let _pushPending = false;
 
         async function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+            safeSaveToLocal(systemData);
             _pushPending = true;
             await pushToServer();
             _pushPending = false;
@@ -982,14 +1018,14 @@
 
                     if (localOnly.length) {
                         systemData.submissions = [...systemData.submissions, ...localOnly];
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                        safeSaveToLocal(systemData);
                         await pushToServer();
                         return;
                     }
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                    safeSaveToLocal(systemData);
                 } else {
                     systemData.users = mergeWithSeed(systemData.users);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+                    safeSaveToLocal(systemData);
                     await pushToServer();
                 }
             } catch (e) {
