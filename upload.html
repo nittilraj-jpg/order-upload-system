@@ -471,16 +471,7 @@
         // device -> "Invalid username or password" for everyone but the admin.
         // ⬇️ Paste your Apps Script Web App URL here after deploying Code.gs
 
-        const SUPABASE_URL = 'https://yhubqbubjgkycikiweav.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodWJxYnViamdreWNpa2l3ZWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Nzk5ODMsImV4cCI6MjEwMDM1NTk4M30.OrL_kRTk5gz3QwbyM4mtspz4ej7hZAucK8-zFAn2pWc';
-        const SUBMISSIONS_API = SUPABASE_URL + '/rest/v1/submissions';
-        const CONFIG_API = SUPABASE_URL + '/rest/v1/config';
-        const HEADERS = {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Prefer': 'return=representation'
-        };
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoMxUO_O0_srWRRo2LSA9RUYb8Qiu8MTseDxEQVm_D-IaGr2E1p2_5egl2np8I5Ao6jA/exec';
 
         let _pushPending = false;
 
@@ -492,8 +483,8 @@
         }
 
         async function pushToServer() {
+            if (!APPS_SCRIPT_URL) return false;
             try {
-                // Save config (users, columns, deadlines)
                 const config = {
                     users: systemData.users,
                     columns: systemData.columns,
@@ -503,55 +494,21 @@
                     deliveryDeadline: systemData.deliveryDeadline,
                     pickupDefaultHour: systemData.pickupDefaultHour,
                     deliveryDefaultHour: systemData.deliveryDefaultHour,
-                    exceptions: systemData.exceptions
+                    exceptions: systemData.exceptions,
+                    googleSheetIdPickup: systemData.googleSheetIdPickup,
+                    googleSheetIdDelivery: systemData.googleSheetIdDelivery,
+                    pickupConfiguration: systemData.pickupConfiguration
                 };
-                const checkRes = await fetch(CONFIG_API + '?id=eq.1', { headers: HEADERS });
-                const existing = await checkRes.json();
-                if (existing && existing.length > 0) {
-                    await fetch(CONFIG_API + '?id=eq.1', {
-                        method: 'PATCH',
-                        headers: HEADERS,
-                        body: JSON.stringify({ data: config })
-                    });
-                } else {
-                    await fetch(CONFIG_API, {
-                        method: 'POST',
-                        headers: HEADERS,
-                        body: JSON.stringify({ id: 1, data: config })
-                    });
-                }
 
-                // Save each submission separately
-                for (const sub of (systemData.submissions || [])) {
-                    const subId = sub.timestamp.replace(/[^a-zA-Z0-9]/g, '_');
-                    const checkSub = await fetch(SUBMISSIONS_API + '?id=eq.' + subId, { headers: HEADERS });
-                    const existingSub = await checkSub.json();
-                    const subData = {
-                        id: subId,
-                        username: sub.username,
-                        employee_name: sub.employeeName,
-                        type: sub.type,
-                        records: sub.records,
-                        rows: sub.rows || [],
-                        status: sub.status,
-                        uploaded_at: sub.uploadedAt,
-                        timestamp: sub.timestamp,
-                        is_late_submission: sub.isLateSubmission || false
-                    };
-                    if (existingSub && existingSub.length > 0) {
-                        await fetch(SUBMISSIONS_API + '?id=eq.' + subId, {
-                            method: 'PATCH',
-                            headers: HEADERS,
-                            body: JSON.stringify(subData)
-                        });
-                    } else {
-                        await fetch(SUBMISSIONS_API, {
-                            method: 'POST',
-                            headers: HEADERS,
-                            body: JSON.stringify(subData)
-                        });
-                    }
-                }
+                const payload = {
+                    config: config,
+                    submissions: systemData.submissions || []
+                };
+
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload) // Need to use standard text format for Apps Script POST
+                });
                 return true;
             } catch (e) {
                 console.warn('Could not sync to server:', e.message);
@@ -560,39 +517,23 @@
         }
 
         async function syncFromServer() {
-            if (_pushPending) return;
+            if (_pushPending || !APPS_SCRIPT_URL) return;
             try {
-                // Load config
-                const configRes = await fetch(CONFIG_API + '?id=eq.1', { headers: HEADERS });
-                if (!configRes.ok) return;
-                const configRows = await configRes.json();
-
-                // Load all submissions
-                const subsRes = await fetch(SUBMISSIONS_API + '?order=timestamp.asc', { headers: HEADERS });
-                if (!subsRes.ok) return;
-                const subsRows = await subsRes.json();
+                const res = await fetch(APPS_SCRIPT_URL);
+                if (!res.ok) return;
+                const result = await res.json();
+                if (result.status !== 'success') return;
 
                 loadData();
 
-                if (configRows && configRows.length && configRows[0].data && (configRows[0].data.users || []).length) {
-                    const serverConfig = configRows[0].data;
-                    const serverSubs = (subsRows || []).map(s => ({
-                        username: s.username,
-                        employeeName: s.employee_name,
-                        type: s.type,
-                        records: s.records,
-                        rows: s.rows || [],
-                        status: s.status,
-                        uploadedAt: s.uploaded_at,
-                        timestamp: s.timestamp,
-                        isLateSubmission: s.is_late_submission
-                    }));
+                const serverConfig = result.config || {};
+                const serverSubs = result.submissions || [];
 
-                    // Merge: keep local submissions not yet on server
+                if (serverConfig && serverConfig.users && serverConfig.users.length > 0) {
                     const serverTs = new Set(serverSubs.map(s => s.timestamp));
                     const localOnly = (systemData.submissions || []).filter(s => !serverTs.has(s.timestamp));
 
-                    systemData = { ...serverConfig, submissions: serverSubs };
+                    systemData = { ...systemData, ...serverConfig, submissions: serverSubs };
 
                     if (localOnly.length) {
                         systemData.submissions = [...systemData.submissions, ...localOnly];
@@ -602,7 +543,7 @@
                     }
                     safeSaveToLocal(systemData);
                 } else {
-                    systemData.users = mergeWithSeed(systemData.users);
+                    systemData.users = systemData.users || SEED_USERS;
                     safeSaveToLocal(systemData);
                     await pushToServer();
                 }
